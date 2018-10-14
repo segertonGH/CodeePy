@@ -1,6 +1,7 @@
 # CodeePy
 
 CodeePy has been created to allow Codee the robot from the Creative Science Foundation to be controlled via Python.
+[![PyPI version](https://badge.fury.io/py/codeepy.svg)](https://badge.fury.io/py/codeepy)
 
 ![Image of Codee](https://cdn.pbrd.co/images/HIofnKw.jpg)
 
@@ -8,7 +9,7 @@ CodeePy has been created to allow Codee the robot from the Creative Science Foun
 
 ## Requirements
 CodeePy requires Python 3.4 to be installed on your machine, it can be downloaded for free from the [Python website.](https://www.python.org/downloads/)
-We recommend using [Pycharm IDE] (https://www.python.org/downloads/) as your initial development tool, please note students, educators and educational facilities have free access to the professional version and there is also a free community version.
+We recommend using [Pycharm IDE](https://www.jetbrains.com/pycharm/download/#section=windows) as your initial development tool, please note students, educators and educational facilities have free access to the professional version and there is also a free community version.
 
 ## Setting up your development environment
 Create a new project, being sure to specify the Python 3.4 interpreter.
@@ -50,7 +51,8 @@ technology. The tasks are carefully designed to fit the abilities of all ages, r
 simple to more complex assembly, depending on your age, knowledge and guidance
 available
 
-For more information on how to create Codee including 3D printing files and firmware please visit [Instructables](https://www.instructables.com/id/Creative-Robotix-Educational-Platform-3DP/)
+## Building Codee
+For more information on how to create Codee including 3D printing files and firmware please visit [Instructables](https://www.instructables.com/id/Creative-Robotix-Educational-Platform-Codee-Robee-/)
 
 For more information on the Creative Science Foundation please visit [CreativeRobotix](http://www.creative-science.org/activities/robotix/)
 
