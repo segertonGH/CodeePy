@@ -1,6 +1,5 @@
 README.md
 setup.py
-codeepy/CodeePy.py
 codeepy/__init__.py
 codeepy/codeepy.py
 codeepy.egg-info/PKG-INFO

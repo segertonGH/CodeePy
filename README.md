@@ -4,12 +4,44 @@ CodeePy has been created to allow Codee the robot from the Creative Science Foun
 
 ![Image of Codee](https://cdn.pbrd.co/images/HIofnKw.jpg)
 
-## Getting started with CodeePy
+# Getting started with CodeePy
+
+## Requirements
+CodeePy requires Python 3.4 to be installed on your machine, it can be downloaded for free from the [Python website.](https://www.python.org/downloads/)
+We recommend using [Pycharm IDE] (https://www.python.org/downloads/) as your initial development tool, please note students, educators and educational facilities have free access to the professional version and there is also a free community version.
+
+## Setting up your development environment
+Create a new project, being sure to specify the Python 3.4 interpreter.
+Open the terminal within PyCharm and install CodeePy with pip (which will also install any dependencies)
+For more information regarding pip please visit our [module page](https://pypi.org/project/codeepy/)
+
+```python
+pip install codeepy
+```
+
+## Getting started
+Within your project create a new Python file, initially you will need to import CodeePy, and create an instance of CodeePy.
+I have included a helper which will list your com ports, additionally CodeePy documentation can be viewed with the help(CodeePy) function below
+
+```python
+from codeePy import CodeePy
+
+# view CodeePy Documentation
+help(CodeePy)
+
+CodeePy.get_com_ports()
+
+# create CodeePy Instance and open connection
+board = CodeePy('<Your COM port>')
+```
+
+Now you have created your instance object please see the Example.py file to test the CodeePy functions.
 
 
 
-## About Creative-Robotix
 
+
+## About Codee & Creative-Robotix
 Creative-Robotix can be used by teachers, parents, children, adults, in groups or as
 individuals to address core STEAM (Science, Technology, Engineering, Arts & Maths) learning
 and making activities in a fun, hands-on, social and interactive way. Our open-source
@@ -18,12 +50,8 @@ technology. The tasks are carefully designed to fit the abilities of all ages, r
 simple to more complex assembly, depending on your age, knowledge and guidance
 available
 
-CodeePy has been created to allow Codee the robot from the Creative Science Foundation to be controlled via Python.
+For more information on how to create Codee including 3D printing files and firmware please visit [Instructables](https://www.instructables.com/id/Creative-Robotix-Educational-Platform-3DP/)
 
-For more information on how to create Codee including 3D printing files and firmware please visit;
-[Instructables](https://www.instructables.com/id/Creative-Robotix-Educational-Platform-3DP/)
-
-For more information on the Creative Science Foundation please visit;
-[CreativeRobotix](http://www.creative-science.org/activities/robotix/)
+For more information on the Creative Science Foundation please visit [CreativeRobotix](http://www.creative-science.org/activities/robotix/)
 
 				
