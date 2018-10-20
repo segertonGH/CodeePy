@@ -1,13 +1,13 @@
 import time
-import serial.tools.list_ports
-from codeePy import CodeePy
+from codeepy import CodeePy
 
-# get current COM PORTS  #Maybe useful in interface creation
+# view CodeePy Documentation
+help(CodeePy)
+
 CodeePy.get_com_ports()
 
-# create CodeePy Instance and open connection
-# Insert your COM port here <'COM13'>
-#board = CodeePy('COM13')
+# create CodeePy Instance and open connection (Change COM port to your own com port value)
+board = CodeePy('COM12')
 
 # say text
 #board.say("Hello")
@@ -40,6 +40,9 @@ CodeePy.get_com_ports()
 #board.stop_arms()
 #board.exit()
 
+#Set degrees of both arms
+#board.set_arms(0, 0)
+
 # test look around
 # set look around to on
 # board.look_around(2, True)
@@ -69,7 +72,8 @@ CodeePy.get_com_ports()
 #Run single line sensor id no 5 for 4 seconds
 #board.read_line_sensor(5,4)
 
-#Get darkest position under all 5 line sensors
+#returns an array of all the sensor values that detect a black line, 1 is true 0 is false
+#You can all 5 or inner 3 sensors as int
 #print(board.read_line_position(5))
 
 #Test Codee's wheel servos
@@ -80,6 +84,9 @@ CodeePy.get_com_ports()
 #board.set_left_wheel_velocity(0)
 #board.set_right_wheel_velocity(0)
 
-#Reset Codee to default
-#board.reset_codee_body_and_exit()
+#Set both wheel speeds
+#board.set_wheel_velocities(10,10)
+#time.sleep(1)
 
+#Reset Codee to default
+board.reset_codee_body_and_exit()

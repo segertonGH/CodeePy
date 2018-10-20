@@ -60,6 +60,9 @@ time.sleep(5)
 board.stop_arms()
 board.exit()
 
+#Set degrees of both arms
+#board.set_arms(0, 0)
+
 #Look around
 # set look around to on
 board.look_around(2, True)
@@ -90,7 +93,8 @@ board.change_bot_bluetooth_name("happybot")
 #Run single line sensor id no 5 for 4 seconds
 #board.read_line_sensor(5,4)
 
-#Get darkest position under all 5 line sensors
+#returns an array of all the sensor values that detect a black line, 1 is true 0 is false
+#You can all 5 or inner 3 sensors as int
 print(board.read_line_position(5))
 
 #Test Codee's wheel servos
@@ -100,6 +104,9 @@ for x in range(10):
     time.sleep(0.25)
 board.set_left_wheel_velocity(0)
 board.set_right_wheel_velocity(0)
+
+#Set both wheel speeds
+#board.set_wheel_velocities(10,10)
 
 #Close the serial connection & exit cleanly
 board.exit()
@@ -132,7 +139,11 @@ class CodeePy:
 
     def _messageHandler(self, *args, **kwargs):
         print("in handler")
-        print (args)
+        #print (args)
+        #print(util.two_byte_iter_to_str(args))
+        newres = util.break_to_bytes(args)
+        print(util.from_two_bytes(newres))
+
 
     ######## Public Functions ########
 
@@ -321,6 +332,16 @@ class CodeePy:
             print("Please enter a number between -90 and 90")
     set_left_arm.__doc__ = "Set left servo angle to degrees x"
 
+    def set_arms(self, leftarm_degree, rightarm_degree):
+        """
+        This method will set Codees arms to given degrees
+        @param leftarm_degree: an int value between -90 and 90 inclusive
+        @param rightarm_degree: an int value between -90 and 90 inclusive
+        """
+        self.set_left_arm(leftarm_degree)
+        self.set_right_arm(rightarm_degree)
+    set_arms.__doc__ = "Set both arm servo angles to degrees x, y"
+
     def stop_arms(self):
         """
         This method will stop Codee's arms moving
@@ -430,7 +451,7 @@ class CodeePy:
 
     def set_led_display_pixel(self, row, column, state):
         """
-        This method will set the state od a single LED in  Codees LED matrix
+        This method will set the state of a single LED in  Codees LED matrix
         @param row: row of pixel between 0 and 7 inclusive as int
         @param column: column of pixel between 0 and 7 inclusive as int
         @param state: desired state either True or False
@@ -442,6 +463,10 @@ class CodeePy:
     set_led_display_pixel.__doc__ = "Set individual pixel state (True/False)"
 
     def set_left_wheel_velocity(self, leftspeed):
+        """
+        This method will set the speed of the left wheel servo
+        @param leftspeed: wheel speed between 0 and 180 inclusive as int
+        """
         leftspeed = 90 + leftspeed
         if leftspeed < 0:
             leftspeed = 0
@@ -451,6 +476,10 @@ class CodeePy:
     set_left_wheel_velocity.__doc__ = "Set left wheel velocity"
 
     def set_right_wheel_velocity(self, rightspeed):
+        """
+        This method will set the speed of the right wheel servo
+        @param rightspeed: wheel speed between 0 and 180 inclusive as int
+        """
         rightspeed = 90 - rightspeed
         if rightspeed < 0:
             rightspeed = 0
@@ -459,11 +488,28 @@ class CodeePy:
         self.codee.send_sysex(0x0E, [0x00, rightspeed])
     set_right_wheel_velocity.__doc__ = "Set right wheel velocity"
 
+    def set_wheel_velocities(self, leftspeed, rightspeed):
+        """
+        This method will set the speed of both wheel servos
+        @param leftspeed: wheel speed between 0 and 180 inclusive as int
+        @param rightspeed: wheel speed between 0 and 180 inclusive as int
+        """
+        self.set_right_wheel_velocity(rightspeed)
+        self.set_left_wheel_velocity(leftspeed)
+    set_wheel_velocities.__doc__ = "Set bothe wheel velocities, leftspeed rightspeed"
+
     def stop_wheels(self):
+        """
+        This method will stop both wheel servos
+        """
         self.codee.send_sysex(0x0E, [0x5A, 0x5A])
     stop_wheels.__doc__ = "Stop wheels"
 
     def change_bot_bluetooth_name(self, text):
+        """
+        This method will change the bluetooth name of your Codee
+        @param text: new name as string
+        """
         text = text.strip()
         if len(text) < 11:
             btlist = [1]
@@ -478,8 +524,14 @@ class CodeePy:
             print("Please enter text less than 10 characters in length")
     change_bot_bluetooth_name.__doc__ = "Change Bluetooth name"
 
-    # 0.0 min value = black, 1.0 max value = white
     def read_line_sensor(self, sensor_id, duration):
+        """
+        This method will read the value of one line sensor
+        Prints results, no return, for testing only
+        0.0 min value = black, 1.0 max value = white
+        @param sensor_id: line senor if as int
+        @param duration: time you would like to read line sensor
+        """
         global pin_setup
         if sensor_id == 1: pin_setup = 'a:2:i'
         if sensor_id == 2: pin_setup = 'a:3:i'
@@ -498,58 +550,71 @@ class CodeePy:
             self.codee.exit()
     read_line_sensor.__doc__ = "Continual read of line IR sensor"
 
-    # 0.0 min value = black, 1.0 max value = white no_sensor is either 3 or 5
     def read_line_position(self, no_sensors):
-        global sensor_result1, sensor_result2, sensor_result3, sensor_result4, sensor_result5
-        ret_arr = []
+        """
+        This method will set the speed of both wheel servos
+        @param no_sensors: no_sensor is either 3 or 5 as int
+        @return array of int values 1 = black 0 = white
+        """
+        global sensor_result1, sensor_result2, sensor_result3, sensor_result4, sensor_result5, output_arr
+        output_arr = []
+        results_are_none = True
+
         if(no_sensors == 3 or no_sensors == 5):
             line_sensor_1 = self.codee.get_pin('a:2:i')
             line_sensor_2 = self.codee.get_pin('a:3:i')
             line_sensor_3 = self.codee.get_pin('a:4:i')
             line_sensor_4 = self.codee.get_pin('a:5:i')
             line_sensor_5 = self.codee.get_pin('a:6:i')
-            output_arr = []
             it = util.Iterator(self.codee)
             it.start()
             try:
-                for m in range(3): #limits read to max 3
-                    time.sleep(0.2)  #time in secs betweens reads
+                while results_are_none:
+                    time.sleep(0.05)
                     if(no_sensors == 5):
                         sensor_result1 = line_sensor_1.read()
-                        time.sleep(0.1)  # time in secs betweens reads
+                        print(sensor_result1)
+                        if sensor_result1 is not None:
+                            sensor_result1 = 1 if sensor_result1 < 0.5 else 0
+                            output_arr.append(sensor_result1)
                     sensor_result2 = line_sensor_2.read()
-                    time.sleep(0.1)  # time in secs betweens reads
+                    print(sensor_result2)
+                    if sensor_result2 is not None:
+                        sensor_result2 = 1 if sensor_result2 < 0.5 else 0
+                        output_arr.append(sensor_result2)
                     sensor_result3 = line_sensor_3.read()
-                    time.sleep(0.1)  # time in secs betweens reads
+                    print(sensor_result3)
+                    if sensor_result3 is not None:
+                        sensor_result3 = 1 if sensor_result3 < 0.5 else 0
+                        output_arr.append(sensor_result3)
                     sensor_result4 = line_sensor_4.read()
-                    if(no_sensors == 5):
-                        time.sleep(0.1)  # time in secs betweens reads
+                    print(sensor_result4)
+                    if sensor_result4 is not None:
+                        sensor_result4 = 1 if sensor_result4 < 0.5 else 0
+                        output_arr.append(sensor_result4)
+                    if no_sensors == 5:
                         sensor_result5 = line_sensor_5.read()
+                        print(sensor_result5)
+                        if sensor_result5 is not None:
+                            sensor_result5 = 1 if sensor_result5 < 0.5 else 0
+                            output_arr.append(sensor_result5)
+                    if no_sensors == 3 and len(output_arr) == 3:
+                        results_are_none = False
+                    if no_sensors == 5 and len(output_arr) == 5:
+                        results_are_none = False
             except KeyboardInterrupt:
                 self.codee.exit()
-            if (no_sensors == 5):
-                output_arr.append(sensor_result1)
-            output_arr.append(sensor_result2)
-            output_arr.append(sensor_result3)
-            output_arr.append(sensor_result4)
-            if (no_sensors == 5):
-                output_arr.append(sensor_result5)
-            print(output_arr)
-            min_value_index = output_arr.index(min(output_arr))
-            #get the indexes of the minimum values in the array (allowing for multiples)
-            for index, out in enumerate(output_arr, start=0):  # default is zero
-                if (out == output_arr[min_value_index]):
-                    sensor_no = index + 1
-                    ret_arr.append(sensor_no) # sensor number of "blackest"
-            self.codee.exit()
-            return ret_arr
+            return output_arr
         else:
             print("no of sensors must be 3 or 5")
-            return ret_arr
-
-    read_line_position.__doc__ = "returns an array of the sensors(no's) that detect a black line"
+            return output_arr
+    read_line_position.__doc__ = "returns an array of all the sensor values that detect a black line, 1 is true 0 is false"
 
     def set_led_display_rows(self, hex):
+        """
+        This method will set the display rows
+        @param hex: input row as hex
+        """
         if len(hex) == 16:
             self.codee.send_sysex(0x0A, [0x04])
         else:
@@ -557,6 +622,10 @@ class CodeePy:
     set_led_display_rows.__doc__ = "Set active display rows"
 
     def reset_codee_body_and_exit(self):
+        """
+        This method will reset Codees limbs to default position
+        stop head, wheel movements and clear the display then disconnect codee
+        """
         self.stop_arms()
         self.set_right_arm(-90)
         self.set_left_arm(-90)
@@ -568,6 +637,9 @@ class CodeePy:
     reset_codee_body_and_exit.__doc__ = "Reset codee's body and disconnect"
 
     def robot_ultrasound_distance_reading(self):
+        """
+        This method is still in development
+        """
         data = []
         # start ultrasound
         self.codee.send_sysex(0x08, data)
@@ -602,6 +674,9 @@ class CodeePy:
     exit.__doc__ = "Exit and disconnect port"
 
     def __set_as_nano(self):
+        """
+        Sets board spec to nano
+        """
         nano = {
             'digital': tuple(x for x in range(14)),
             'analog': tuple(x for x in range(8)),

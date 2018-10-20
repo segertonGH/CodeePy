@@ -1,5 +1,5 @@
 import time
-from codeePy import CodeePy
+from codeepy import CodeePy
 
 # view CodeePy Documentation
 help(CodeePy)
@@ -7,7 +7,7 @@ help(CodeePy)
 CodeePy.get_com_ports()
 
 # create CodeePy Instance and open connection
-board = CodeePy('COM13')
+board = CodeePy('COM12')
 
 # Dance intro loop
 countdown = 5
@@ -29,13 +29,7 @@ board.play_melody("chariots") #Start playing the music
 board.swing_arms(2, True) #Start swinging arms
 
 #Spin from side to side
-for y in range(2): #Do everything in this loop 2 times
-    board.set_left_wheel_velocity(10) #Start Left Wheel
-    time.sleep(3) #wait 4 seconds (while still doing all the above)
-    board.set_left_wheel_velocity(0) #Stop Left Wheel
-    board.set_right_wheel_velocity(10) #Start Right Wheel
-    time.sleep(3) #wait 4 seconds (while still doing all the above)
-    board.set_right_wheel_velocity(0) #Stop Right Wheel
+board.led_scroll_text("abc")
 
 #Stop arm swing
 board.stop_arms() #Stop swinging arms
