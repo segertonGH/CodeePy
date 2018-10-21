@@ -69,7 +69,7 @@ board = CodeePy('COM12')
 #Changebluetooth name
 #board.change_bot_bluetooth_name("Grumpee")
 
-#Run single line sensor id no 5 for 4 seconds
+#Run single line sensor id no 5 for a maximum of 4 seconds
 #board.read_line_sensor(5,4)
 
 #returns an array of all the sensor values that detect a black line, 1 is true 0 is false

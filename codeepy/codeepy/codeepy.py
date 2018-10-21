@@ -90,7 +90,7 @@ board.set_led_display_pixel(0, 0, True)
 #Changebluetooth name
 board.change_bot_bluetooth_name("happybot")
 
-#Run single line sensor id no 5 for 4 seconds
+#Run single line sensor id no 5 for a maximum of 4 seconds
 #board.read_line_sensor(5,4)
 
 #returns an array of all the sensor values that detect a black line, 1 is true 0 is false
@@ -121,6 +121,7 @@ from pyfirmata import util
 
 
 class CodeePy:
+    global line_sensor_1, line_sensor_2, line_sensor_3, line_sensor_4, line_sensor_5, notedictionary
 
     def __init__(self, port):
         """
@@ -134,6 +135,27 @@ class CodeePy:
         # instantiate handler for commands
         self.check_codee_firmware()
         self.codee.add_cmd_handler(pyfirmata.pyfirmata.STRING_DATA, self._messageHandler)
+        self.line_sensor_1 = self.codee.get_pin('a:2:i')
+        self.line_sensor_2 = self.codee.get_pin('a:3:i')
+        self.line_sensor_3 = self.codee.get_pin('a:4:i')
+        self.line_sensor_4 = self.codee.get_pin('a:5:i')
+        self.line_sensor_5 = self.codee.get_pin('a:6:i')
+        self.notedictionary = {"RST": 0,
+                          "C1": 33, "CS1": 35, "D1": 37, "DS1": 39, "E1": 41, "F1": 44, "FS1": 46, "G1": 49, "GS1": 52,
+                          "A1": 55, "AS1": 58, "B1": 62,
+                          "C2": 65, "CS2": 69, "D2": 73, "DS2": 78, "E2": 82, "F2": 87, "FS2": 93, "G2": 98, "GS2": 104,
+                          "A2": 110, "AS2": 117, "B2": 123,
+                          "C3": 131, "CS3": 139, "D3": 147, "DS3": 156, "E3": 165, "F3": 175, "FS3": 185, "G3": 196,
+                          "GS3": 208, "A3": 220, "AS3": 223, "B3": 248,
+                          "C4": 262, "CS4": 277, "D4": 294, "DS4": 311, "E4": 330, "F4": 349, "FS4": 370, "G4": 392,
+                          "G34": 415, "A4": 440, "AS4": 466, "B4": 494,
+                          "C5": 523, "CS5": 554, "D5": 587, "DS5": 662, "E5": 659, "F5": 698, "FS5": 740, "G5": 784,
+                          "GS5": 831, "A5": 880, "AS5": 932, "B5": 988,
+                          "C6": 1047, "CS6": 1109, "D6": 1175, "DS6": 1245, "E6": 1319, "F6": 1397, "FS6": 1480,
+                          "G6": 1568, "GS6": 1661, "A6": 1760, "AS6": 1865, "B6": 1976,
+                          "C7": 2093, "CS7": 2217, "D7": 2349, "DS7": 2489, "E7": 2637, "F7": 2794, "FS7": 2960,
+                          "G7": 3136, "GS7": 3322, "A7": 3520, "AS7": 3729, "B7": 3951,
+                          "C8": 4186, "CS8": 4435, "D8": 4699, "DS8": 4978}
 
     ######## Call back definition ########
 
@@ -150,7 +172,7 @@ class CodeePy:
     def check_codee_firmware(self):
         """
         Checks firmata version is 2.5
-        @return True is Firmata is 2.5, False if it is not
+        @return: True is Firmata is 2.5, False if it is not
         """
         print("Running pyFirmata version:\t%s" % pyfirmata.__version__)
         if self.codee.get_firmata_version()[0] == 2 and self.codee.get_firmata_version()[1] == 5:
@@ -164,7 +186,7 @@ class CodeePy:
         """
         This method makes Codee "Speak"
         @param text: a string with less than 30 characters that Codee will day
-        @return True if Codee "Spoke", else False
+        @return: True if Codee "Spoke", else False
         """
         text = text.strip()
         if len(text) < 30:
@@ -232,25 +254,8 @@ class CodeePy:
         """
         # create melody list to hold song data
         melodylist = [0x02]
-        # define notes/frequency key value pairs
-        notedictionary = {"RST": 0,
-                          "C1": 33, "CS1": 35, "D1": 37, "DS1": 39, "E1": 41, "F1": 44, "FS1": 46, "G1": 49, "GS1": 52,
-                          "A1": 55, "AS1": 58, "B1": 62,
-                          "C2": 65, "CS2": 69, "D2": 73, "DS2": 78, "E2": 82, "F2": 87, "FS2": 93, "G2": 98, "GS2": 104,
-                          "A2": 110, "AS2": 117, "B2": 123,
-                          "C3": 131, "CS3": 139, "D3": 147, "DS3": 156, "E3": 165, "F3": 175, "FS3": 185, "G3": 196,
-                          "GS3": 208, "A3": 220, "AS3": 223, "B3": 248,
-                          "C4": 262, "CS4": 277, "D4": 294, "DS4": 311, "E4": 330, "F4": 349, "FS4": 370, "G4": 392,
-                          "G34": 415, "A4": 440, "AS4": 466, "B4": 494,
-                          "C5": 523, "CS5": 554, "D5": 587, "DS5": 662, "E5": 659, "F5": 698, "FS5": 740, "G5": 784,
-                          "GS5": 831, "A5": 880, "AS5": 932, "B5": 988,
-                          "C6": 1047, "CS6": 1109, "D6": 1175, "DS6": 1245, "E6": 1319, "F6": 1397, "FS6": 1480,
-                          "G6": 1568, "GS6": 1661, "A6": 1760, "AS6": 1865, "B6": 1976,
-                          "C7": 2093, "CS7": 2217, "D7": 2349, "DS7": 2489, "E7": 2637, "F7": 2794, "FS7": 2960,
-                          "G7": 3136, "GS7": 3322, "A7": 3520, "AS7": 3729, "B7": 3951,
-                          "C8": 4186, "CS8": 4435, "D8": 4699, "DS8": 4978}
         for x in noteList:
-            frequency = notedictionary.get(x, 0)  # set default value to 0 to avoid key errors
+            frequency = self.notedictionary.get(x, 0)  # set default value to 0 to avoid key errors
             flow = frequency & 0xFF
             fhigh = (frequency & 0xFFFF) >> 8
             melodylist.append(fhigh)
@@ -268,25 +273,10 @@ class CodeePy:
         # create melody list to hold song data
         melodylist = [0x02]
         # define notes/frequency key value pairs
-        notedictionary = {"RST": 0,
-                          "C1": 33, "CS1": 35, "D1": 37, "DS1": 39, "E1": 41, "F1": 44, "FS1": 46, "G1": 49, "GS1": 52,
-                          "A1": 55, "AS1": 58, "B1": 62,
-                          "C2": 65, "CS2": 69, "D2": 73, "DS2": 78, "E2": 82, "F2": 87, "FS2": 93, "G2": 98, "GS2": 104,
-                          "A2": 110, "AS2": 117, "B2": 123,
-                          "C3": 131, "CS3": 139, "D3": 147, "DS3": 156, "E3": 165, "F3": 175, "FS3": 185, "G3": 196,
-                          "GS3": 208, "A3": 220, "AS3": 223, "B3": 248,
-                          "C4": 262, "CS4": 277, "D4": 294, "DS4": 311, "E4": 330, "F4": 349, "FS4": 370, "G4": 392,
-                          "G34": 415, "A4": 440, "AS4": 466, "B4": 494,
-                          "C5": 523, "CS5": 554, "D5": 587, "DS5": 662, "E5": 659, "F5": 698, "FS5": 740, "G5": 784,
-                          "GS5": 831, "A5": 880, "AS5": 932, "B5": 988,
-                          "C6": 1047, "CS6": 1109, "D6": 1175, "DS6": 1245, "E6": 1319, "F6": 1397, "FS6": 1480,
-                          "G6": 1568, "GS6": 1661, "A6": 1760, "AS6": 1865, "B6": 1976,
-                          "C7": 2093, "CS7": 2217, "D7": 2349, "DS7": 2489, "E7": 2637, "F7": 2794, "FS7": 2960,
-                          "G7": 3136, "GS7": 3322, "A7": 3520, "AS7": 3729, "B7": 3951,
-                          "C8": 4186, "CS8": 4435, "D8": 4699, "DS8": 4978}
+
         for x in noteList:
             frequency, duration = x.split('.')
-            frequency = notedictionary.get(frequency, 0)  # set default value to 0 to avoid key errors
+            frequency = self.notedictionary.get(frequency, 0)  # set default value to 0 to avoid key errors
             flow = frequency & 0xFF
             fhigh = (frequency & 0xFFFF) >> 8
             melodylist.append(fhigh)
@@ -434,7 +424,7 @@ class CodeePy:
     def display_number(self, number):
         """
         This method will make Codees LED matrix display a number
-        @param number: numver to display as int between 0 and 99 inclusive
+        @param number : number to display as int between 0 and 99 inclusive
         """
         if number >= 0 and number <= 99:
             self.codee.send_sysex(0x0A, [0x03, number])
@@ -490,9 +480,9 @@ class CodeePy:
 
     def set_wheel_velocities(self, leftspeed, rightspeed):
         """
-        This method will set the speed of both wheel servos
         @param leftspeed: wheel speed between 0 and 180 inclusive as int
         @param rightspeed: wheel speed between 0 and 180 inclusive as int
+        This method will set the speed of both wheel servos
         """
         self.set_right_wheel_velocity(rightspeed)
         self.set_left_wheel_velocity(leftspeed)
@@ -527,28 +517,30 @@ class CodeePy:
     def read_line_sensor(self, sensor_id, duration):
         """
         This method will read the value of one line sensor
-        Prints results, no return, for testing only
         0.0 min value = black, 1.0 max value = white
-        @param sensor_id: line senor if as int
-        @param duration: time you would like to read line sensor
+        @param sensor_id: line sensor if as int
+        @param duration: time limit on sensor read
+        @return result: the first read value that is not None else None is function has timed out
         """
-        global pin_setup
-        if sensor_id == 1: pin_setup = 'a:2:i'
-        if sensor_id == 2: pin_setup = 'a:3:i'
-        if sensor_id == 3: pin_setup = 'a:4:i'
-        if sensor_id == 4: pin_setup = 'a:5:i'
-        if sensor_id == 5: pin_setup = 'a:6:i'
+        global line_sensor, result
+        if sensor_id == 1: line_sensor = self.line_sensor_1
+        if sensor_id == 2: line_sensor = self.line_sensor_2
+        if sensor_id == 3: line_sensor = self.line_sensor_3
+        if sensor_id == 4: line_sensor = self.line_sensor_4
+        if sensor_id == 5: line_sensor = self.line_sensor_5
         it = util.Iterator(self.codee)
         it.start()
-        line_sensor = self.codee.get_pin(pin_setup)
         try:
             for x in range(duration*4):
-                time.sleep(0.25)  #time in secs betweens reads
-                p = line_sensor.read()
-                print(p)
+                time.sleep(0.3)
+                result = line_sensor.read()
+                if result is not None:
+                    print(result)
+                    return result
         except KeyboardInterrupt:
             self.codee.exit()
-    read_line_sensor.__doc__ = "Continual read of line IR sensor"
+        return result
+    read_line_sensor.__doc__ = "Read of line IR sensor"
 
     def read_line_position(self, no_sensors):
         """
@@ -561,39 +553,34 @@ class CodeePy:
         results_are_none = True
 
         if(no_sensors == 3 or no_sensors == 5):
-            line_sensor_1 = self.codee.get_pin('a:2:i')
-            line_sensor_2 = self.codee.get_pin('a:3:i')
-            line_sensor_3 = self.codee.get_pin('a:4:i')
-            line_sensor_4 = self.codee.get_pin('a:5:i')
-            line_sensor_5 = self.codee.get_pin('a:6:i')
             it = util.Iterator(self.codee)
             it.start()
             try:
                 while results_are_none:
                     time.sleep(0.05)
                     if(no_sensors == 5):
-                        sensor_result1 = line_sensor_1.read()
+                        sensor_result1 = self.line_sensor_1.read()
                         print(sensor_result1)
                         if sensor_result1 is not None:
                             sensor_result1 = 1 if sensor_result1 < 0.5 else 0
                             output_arr.append(sensor_result1)
-                    sensor_result2 = line_sensor_2.read()
+                    sensor_result2 = self.line_sensor_2.read()
                     print(sensor_result2)
                     if sensor_result2 is not None:
                         sensor_result2 = 1 if sensor_result2 < 0.5 else 0
                         output_arr.append(sensor_result2)
-                    sensor_result3 = line_sensor_3.read()
+                    sensor_result3 = self.line_sensor_3.read()
                     print(sensor_result3)
                     if sensor_result3 is not None:
                         sensor_result3 = 1 if sensor_result3 < 0.5 else 0
                         output_arr.append(sensor_result3)
-                    sensor_result4 = line_sensor_4.read()
+                    sensor_result4 = self.line_sensor_4.read()
                     print(sensor_result4)
                     if sensor_result4 is not None:
                         sensor_result4 = 1 if sensor_result4 < 0.5 else 0
                         output_arr.append(sensor_result4)
                     if no_sensors == 5:
-                        sensor_result5 = line_sensor_5.read()
+                        sensor_result5 = self.line_sensor_5.read()
                         print(sensor_result5)
                         if sensor_result5 is not None:
                             sensor_result5 = 1 if sensor_result5 < 0.5 else 0
