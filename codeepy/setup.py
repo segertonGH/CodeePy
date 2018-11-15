@@ -23,3 +23,4 @@ setuptools.setup(
    'pyserial'
 	],
 )
+
