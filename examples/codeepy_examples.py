@@ -7,6 +7,7 @@ help(CodeePy)
 CodeePy.get_com_ports()
 
 # create CodeePy Instance and open connection (Change COM port to your own com port value)
+# You can use your robots name in lieu of board ie <Your Robots Name> = CodeePy('<Your COM Port>')
 board = CodeePy('COM12')
 
 # say text
