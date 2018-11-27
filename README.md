@@ -42,7 +42,7 @@ Now you have created your instance object please see the Example.py file to test
 ## Upgrading CodeePy
 
 ```python
-pip install codeepy \-\-upgrade
+pip install codeepy --upgrade
 ```
 
 
