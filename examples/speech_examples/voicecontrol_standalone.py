@@ -25,6 +25,18 @@ LICENSE:
 
     INSTRUCTIONS
     ============
+    1. At the prompt choose from the following word commands and say them into your microphone
+    - ARMS SWING
+    - ARMS UP
+    - ARMS DOWN
+    - HEAD LOOK
+    - HEAD STOP
+    - SING
+    - HAPPY
+    - SAD
+    - LOVE
+    - STOP (stops all Codee's Movements)
+    2. To exit say EXIT, QUIT or END
 
 """
 
