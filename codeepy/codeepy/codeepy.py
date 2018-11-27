@@ -17,6 +17,12 @@ LICENSE:
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
+NOTES
+===============
+Version: 0.1.1
+
+
 QUICK TUTORIAL:
 ===============
 
@@ -53,7 +59,7 @@ board.exit()
 
 #Swing both arms for 5 seconds then stop
 #set arms to on
-board.swing_arms(2, True)
+board.swing_arms(2)
 #set delay
 time.sleep(5)
 #stop arms
@@ -65,39 +71,43 @@ board.exit()
 
 #Look around
 # set look around to on
-board.look_around(2, True)
+board.look_around(2)
 #set delay
 time.sleep(3)
 #stop look around
 board.stop_look_around()
 board.exit()
 
-#Set head image
+# Set head image
 board.display_image("tick")
 
-#Text scroll
-board.led_scroll_text("abcde")
+# Text scroll
+# board.led_scroll_text("abcde")
+# Allow time for text to scroll
+# time.sleep(3)
+# Stop Text Scroll
+# board.stop_led_scroll_text()
 
-#Display number
+# Display number
 board.display_number(85)
 
-#Clear Display
+# Clear Display
 board.display_clear()
 
-#Set LED display pixel state
+# Set LED display pixel
 board.set_led_display_pixel(0, 0, True)
 
-#Changebluetooth name
+# Changebluetooth name
 board.change_bot_bluetooth_name("happybot")
 
-#Run single line sensor id no 5 for a maximum of 4 seconds
-#board.read_line_sensor(5,4)
+# Run single line sensor id no 5 for a maximum of 4 seconds
+# board.read_line_sensor(5,4)
 
-#returns an array of all the sensor values that detect a black line, 1 is true 0 is false
-#You can all 5 or inner 3 sensors as int
+# returns an array of all the sensor values that detect a black line, 1 is true 0 is false
+# You can all 5 or inner 3 sensors as int
 print(board.read_line_position(5))
 
-#Test Codee's wheel servos
+# Test Codee's wheel servos
 for x in range(10):
     board.set_left_wheel_velocity(10)
     board.set_right_wheel_velocity(10)
@@ -105,10 +115,10 @@ for x in range(10):
 board.set_left_wheel_velocity(0)
 board.set_right_wheel_velocity(0)
 
-#Set both wheel speeds
+# Set both wheel speeds
 #board.set_wheel_velocities(10,10)
 
-#Close the serial connection & exit cleanly
+# Close the serial connection & exit cleanly
 board.exit()
 """
 
@@ -133,41 +143,41 @@ class CodeePy:
         self.codee = pyfirmata.Arduino(port)
         self.__set_as_nano()
         # instantiate handler for commands
-        self.check_codee_firmware()
-        self.codee.add_cmd_handler(pyfirmata.pyfirmata.STRING_DATA, self._messageHandler)
+        self.codee.add_cmd_handler(pyfirmata.STRING_DATA, self._messagehandler)
         self.line_sensor_1 = self.codee.get_pin('a:2:i')
         self.line_sensor_2 = self.codee.get_pin('a:3:i')
         self.line_sensor_3 = self.codee.get_pin('a:4:i')
         self.line_sensor_4 = self.codee.get_pin('a:5:i')
         self.line_sensor_5 = self.codee.get_pin('a:6:i')
         self.notedictionary = {"RST": 0,
-                          "C1": 33, "CS1": 35, "D1": 37, "DS1": 39, "E1": 41, "F1": 44, "FS1": 46, "G1": 49, "GS1": 52,
-                          "A1": 55, "AS1": 58, "B1": 62,
-                          "C2": 65, "CS2": 69, "D2": 73, "DS2": 78, "E2": 82, "F2": 87, "FS2": 93, "G2": 98, "GS2": 104,
-                          "A2": 110, "AS2": 117, "B2": 123,
-                          "C3": 131, "CS3": 139, "D3": 147, "DS3": 156, "E3": 165, "F3": 175, "FS3": 185, "G3": 196,
-                          "GS3": 208, "A3": 220, "AS3": 223, "B3": 248,
-                          "C4": 262, "CS4": 277, "D4": 294, "DS4": 311, "E4": 330, "F4": 349, "FS4": 370, "G4": 392,
-                          "G34": 415, "A4": 440, "AS4": 466, "B4": 494,
-                          "C5": 523, "CS5": 554, "D5": 587, "DS5": 662, "E5": 659, "F5": 698, "FS5": 740, "G5": 784,
-                          "GS5": 831, "A5": 880, "AS5": 932, "B5": 988,
-                          "C6": 1047, "CS6": 1109, "D6": 1175, "DS6": 1245, "E6": 1319, "F6": 1397, "FS6": 1480,
-                          "G6": 1568, "GS6": 1661, "A6": 1760, "AS6": 1865, "B6": 1976,
-                          "C7": 2093, "CS7": 2217, "D7": 2349, "DS7": 2489, "E7": 2637, "F7": 2794, "FS7": 2960,
-                          "G7": 3136, "GS7": 3322, "A7": 3520, "AS7": 3729, "B7": 3951,
-                          "C8": 4186, "CS8": 4435, "D8": 4699, "DS8": 4978}
+                               "C1": 33, "CS1": 35, "D1": 37, "DS1": 39, "E1": 41, "F1": 44, "FS1": 46, "G1": 49,
+                               "GS1": 52,
+                               "A1": 55, "AS1": 58, "B1": 62,
+                               "C2": 65, "CS2": 69, "D2": 73, "DS2": 78, "E2": 82, "F2": 87, "FS2": 93, "G2": 98,
+                               "GS2": 104,
+                               "A2": 110, "AS2": 117, "B2": 123,
+                               "C3": 131, "CS3": 139, "D3": 147, "DS3": 156, "E3": 165, "F3": 175, "FS3": 185,
+                               "G3": 196,
+                               "GS3": 208, "A3": 220, "AS3": 223, "B3": 248,
+                               "C4": 262, "CS4": 277, "D4": 294, "DS4": 311, "E4": 330, "F4": 349, "FS4": 370,
+                               "G4": 392,
+                               "G34": 415, "A4": 440, "AS4": 466, "B4": 494,
+                               "C5": 523, "CS5": 554, "D5": 587, "DS5": 662, "E5": 659, "F5": 698, "FS5": 740,
+                               "G5": 784,
+                               "GS5": 831, "A5": 880, "AS5": 932, "B5": 988,
+                               "C6": 1047, "CS6": 1109, "D6": 1175, "DS6": 1245, "E6": 1319, "F6": 1397, "FS6": 1480,
+                               "G6": 1568, "GS6": 1661, "A6": 1760, "AS6": 1865, "B6": 1976,
+                               "C7": 2093, "CS7": 2217, "D7": 2349, "DS7": 2489, "E7": 2637, "F7": 2794, "FS7": 2960,
+                               "G7": 3136, "GS7": 3322, "A7": 3520, "AS7": 3729, "B7": 3951,
+                               "C8": 4186, "CS8": 4435, "D8": 4699, "DS8": 4978}
 
-    ######## Call back definition ########
+    # Call back definition
 
-    def _messageHandler(self, *args, **kwargs):
+    def _messagehandler(self, *args, **kwargs):
         print("in handler")
-        #print (args)
-        #print(util.two_byte_iter_to_str(args))
-        newres = util.break_to_bytes(args)
-        print(util.from_two_bytes(newres))
+        print(args)
 
-
-    ######## Public Functions ########
+    # Public Functions
 
     def check_codee_firmware(self):
         """
@@ -180,6 +190,7 @@ class CodeePy:
             return True
         else:
             return False
+
     check_codee_firmware.__doc__ = "Check Firmata version is 2.5"
 
     def say(self, text):
@@ -198,6 +209,7 @@ class CodeePy:
         else:
             print("Please enter text less than 30 characters in length")
             return False
+
     say.__doc__ = "Generate Audio tone for each char of a string (text)"
 
     def set_melody_tempo(self, tempo):
@@ -207,9 +219,10 @@ class CodeePy:
         """
         tmp = math.floor(tempo * 100)
         # frequency bytes
-        tLow = tmp & 0xFF
-        tHigh = (tmp & 0xFFFF) >> 8
-        self.codee.send_sysex(0x09, [0x04, tHigh, tLow])
+        t_low = tmp & 0xFF
+        t_high = (tmp & 0xFFFF) >> 8
+        self.codee.send_sysex(0x09, [0x04, t_high, t_low])
+
     set_melody_tempo.__doc__ = "Set tempo for playback"
 
     def play_melody(self, melody):
@@ -224,6 +237,7 @@ class CodeePy:
         if melody == "star wars": song_choice = 0x03
         if melody == "chariots": song_choice = 0x04
         self.codee.send_sysex(0x09, [0x01, song_choice])
+
     play_melody.__doc__ = "Melody variable choices: \n" \
                           "green sleeves \n" \
                           "little lamb \n" \
@@ -244,6 +258,7 @@ class CodeePy:
         dlow = duration & 0xFF
         dhigh = (duration & 0xFFFF) >> 8
         self.codee.send_sysex(0x09, [0x03, fhigh, flow, dhigh, dlow])
+
     play_tone.__doc__ = "Play a single frequency tone for given milliseconds"
 
     def play_notes(self, noteList, duration):
@@ -262,8 +277,8 @@ class CodeePy:
             melodylist.append(flow)
             melodylist.append(duration)
         self.codee.send_sysex(0x09, melodylist)
-    play_notes.__doc__ = "Play notes from passed in List"
 
+    play_notes.__doc__ = "Play notes from passed in List"
 
     def play_notes_with_duration(self, noteList):
         """
@@ -283,18 +298,19 @@ class CodeePy:
             melodylist.append(flow)
             melodylist.append(int(duration))
         self.codee.send_sysex(0x09, melodylist)
+
     play_notes.__doc__ = "Play notes from passed in List"
 
-    def swing_arms(self, speed, state):
+    def swing_arms(self, speed):
         """
         This method will make Codee swing his arms
         @param speed: an int value between 0 and 10 inclusive
-        @param state: True to swing arms else False
         """
         if speed > 10: speed = 10
         if speed < 0: speed = 0
-        self.codee.send_sysex(0x0B, [speed, state])
-    swing_arms.__doc__ = "Function to swing arms, speed is speed of swing, state is True) or False"
+        self.codee.send_sysex(0x0B, [speed, True])
+
+    swing_arms.__doc__ = "Function to swing arms, speed is speed of swing"
 
     def set_right_arm(self, degrees):
         """
@@ -307,6 +323,7 @@ class CodeePy:
             time.sleep(.5)
         else:
             print("Please enter a number between -90 and 90")
+
     set_right_arm.__doc__ = "Set right servo angle to degrees x"
 
     def set_left_arm(self, degrees):
@@ -320,6 +337,7 @@ class CodeePy:
             time.sleep(.5)
         else:
             print("Please enter a number between -90 and 90")
+
     set_left_arm.__doc__ = "Set left servo angle to degrees x"
 
     def set_arms(self, leftarm_degree, rightarm_degree):
@@ -330,6 +348,7 @@ class CodeePy:
         """
         self.set_left_arm(leftarm_degree)
         self.set_right_arm(rightarm_degree)
+
     set_arms.__doc__ = "Set both arm servo angles to degrees x, y"
 
     def stop_arms(self):
@@ -337,17 +356,18 @@ class CodeePy:
         This method will stop Codee's arms moving
         """
         self.codee.send_sysex(0x0B, [0, 0])
+
     stop_arms.__doc__ = "Stop arm movement"
 
-    def look_around(self, speed, state):
+    def look_around(self, speed):
         """
         This method will make Codee's head turn from side to side
         @param speed: an int value between 0 and 5 inclusive
-        @param state: True to look around else False
         """
         if speed > 5: speed = 5
         if speed < 0: speed = 0
-        self.codee.send_sysex(0x0C, [speed, state])
+        self.codee.send_sysex(0x0C, [speed, True])
+
     look_around.__doc__ = "Start head movement"
 
     def stop_look_around(self):
@@ -355,6 +375,7 @@ class CodeePy:
         This method will stop Codee's head movements
         """
         self.codee.send_sysex(0x0C, [0, 0])
+
     stop_look_around.__doc__ = "Stop head movement"
 
     def set_head(self, degrees):
@@ -368,6 +389,7 @@ class CodeePy:
             time.sleep(.5)
         else:
             print("Please enter a number between -50 and 50")
+
     set_head.__doc__ = "Set head to x position"
 
     def display_image(self, image):
@@ -391,20 +413,21 @@ class CodeePy:
         if image == "quaverx2": imagetodisp = 0x0C
         if image == "blank": imagetodisp = 0x0D
         self.codee.send_sysex(0x0A, [0x01, imagetodisp])
+
     set_head.__doc__ = "Set head to a image to selected image: \n" \
-                          "smile \n" \
-                          "neutral \n" \
-                          "frown \n" \
-                          "question \n" \
-                          "ok \n" \
-                          "tick \n" \
-                          "cross \n" \
-                          "paper \n" \
-                          "sissors \n" \
-                          "heart \n" \
-                          "quaver \n" \
-                          "quaverx2 \n" \
-                          "blank"
+                       "smile \n" \
+                       "neutral \n" \
+                       "frown \n" \
+                       "question \n" \
+                       "ok \n" \
+                       "tick \n" \
+                       "cross \n" \
+                       "paper \n" \
+                       "sissors \n" \
+                       "heart \n" \
+                       "quaver \n" \
+                       "quaverx2 \n" \
+                       "blank"
 
     def led_scroll_text(self, text):
         """
@@ -419,7 +442,17 @@ class CodeePy:
                 self.codee.send_sysex(0x0A, scroll_list)
         else:
             print("Please enter text less than 30 characters in length")
+
     led_scroll_text.__doc__ = "Scroll text x on Codee head display"
+
+    def stop_led_scroll_text(self):
+        """
+        This method will stop scrolling text and revert to state prior to scrolling
+        """
+        scroll_list = [0x02, False]
+        self.codee.send_sysex(0x0A, scroll_list)
+
+    stop_led_scroll_text.__doc__ = "Stop scroll text on Codee head display"
 
     def display_number(self, number):
         """
@@ -430,6 +463,7 @@ class CodeePy:
             self.codee.send_sysex(0x0A, [0x03, number])
         else:
             print("Please enter a number between 0 and 99")
+
     display_number.__doc__ = "Display number x on Codee head display"
 
     def display_clear(self):
@@ -437,6 +471,7 @@ class CodeePy:
         This method will clear Codees LED matrix turning off all LED's
         """
         self.codee.send_sysex(0x0A, [0x06])
+
     display_clear.__doc__ = "Clear Codee head display"
 
     def set_led_display_pixel(self, row, column, state):
@@ -444,12 +479,13 @@ class CodeePy:
         This method will set the state of a single LED in  Codees LED matrix
         @param row: row of pixel between 0 and 7 inclusive as int
         @param column: column of pixel between 0 and 7 inclusive as int
-        @param state: desired state either True or False
+        @param state: set Pixel state True/False
         """
         if column > -1 and column < 8 and row > -1 and row < 8:
             self.codee.send_sysex(0x0A, [0x05, row, column, state])
         else:
             print("Please enter a row and column values between 0 and 7")
+
     set_led_display_pixel.__doc__ = "Set individual pixel state (True/False)"
 
     def set_left_wheel_velocity(self, leftspeed):
@@ -463,6 +499,7 @@ class CodeePy:
         if leftspeed > 180:
             leftspeed = 180
         self.codee.send_sysex(0x0E, [leftspeed, 0x00])
+
     set_left_wheel_velocity.__doc__ = "Set left wheel velocity"
 
     def set_right_wheel_velocity(self, rightspeed):
@@ -476,6 +513,7 @@ class CodeePy:
         if rightspeed > 180:
             rightspeed = 180
         self.codee.send_sysex(0x0E, [0x00, rightspeed])
+
     set_right_wheel_velocity.__doc__ = "Set right wheel velocity"
 
     def set_wheel_velocities(self, leftspeed, rightspeed):
@@ -486,6 +524,7 @@ class CodeePy:
         """
         self.set_right_wheel_velocity(rightspeed)
         self.set_left_wheel_velocity(leftspeed)
+
     set_wheel_velocities.__doc__ = "Set bothe wheel velocities, leftspeed rightspeed"
 
     def stop_wheels(self):
@@ -493,6 +532,7 @@ class CodeePy:
         This method will stop both wheel servos
         """
         self.codee.send_sysex(0x0E, [0x5A, 0x5A])
+
     stop_wheels.__doc__ = "Stop wheels"
 
     def change_bot_bluetooth_name(self, text):
@@ -512,6 +552,7 @@ class CodeePy:
             print("Your robot is now named " + text)
         else:
             print("Please enter text less than 10 characters in length")
+
     change_bot_bluetooth_name.__doc__ = "Change Bluetooth name"
 
     def read_line_sensor(self, sensor_id, duration):
@@ -531,7 +572,7 @@ class CodeePy:
         it = util.Iterator(self.codee)
         it.start()
         try:
-            for x in range(duration*4):
+            for x in range(duration * 4):
                 time.sleep(0.3)
                 result = line_sensor.read()
                 if result is not None:
@@ -540,6 +581,7 @@ class CodeePy:
         except KeyboardInterrupt:
             self.codee.exit()
         return result
+
     read_line_sensor.__doc__ = "Read of line IR sensor"
 
     def read_line_position(self, no_sensors):
@@ -552,13 +594,13 @@ class CodeePy:
         output_arr = []
         results_are_none = True
 
-        if(no_sensors == 3 or no_sensors == 5):
+        if (no_sensors == 3 or no_sensors == 5):
             it = util.Iterator(self.codee)
             it.start()
             try:
                 while results_are_none:
-                    time.sleep(0.05)
-                    if(no_sensors == 5):
+                    time.sleep(0.07)
+                    if (no_sensors == 5):
                         sensor_result1 = self.line_sensor_1.read()
                         print(sensor_result1)
                         if sensor_result1 is not None:
@@ -595,6 +637,7 @@ class CodeePy:
         else:
             print("no of sensors must be 3 or 5")
             return output_arr
+
     read_line_position.__doc__ = "returns an array of all the sensor values that detect a black line, 1 is true 0 is false"
 
     def set_led_display_rows(self, hex):
@@ -606,6 +649,7 @@ class CodeePy:
             self.codee.send_sysex(0x0A, [0x04])
         else:
             print("Please enter 16 hex digits")
+
     set_led_display_rows.__doc__ = "Set active display rows"
 
     def reset_codee_body_and_exit(self):
@@ -621,6 +665,7 @@ class CodeePy:
         self.stop_wheels()
         self.display_clear()
         self.exit()
+
     reset_codee_body_and_exit.__doc__ = "Reset codee's body and disconnect"
 
     def robot_ultrasound_distance_reading(self):
@@ -634,14 +679,14 @@ class CodeePy:
         it = util.Iterator(self.codee)
         it.start()
         try:
-            #while self.codee.bytes_available():
+            # while self.codee.bytes_available():
             if self.codee.bytes_available():
                 self.codee.iterate()
                 time.sleep(0.2)  # time in secs betweens reads
         except KeyboardInterrupt:
             self.codee.exit()
 
-    ######## Helper Functions ########
+    # Helper Functions
 
     @staticmethod
     def get_com_ports():
@@ -654,10 +699,12 @@ class CodeePy:
         for p in portlist:
             print(p)
         return portlist
+
     get_com_ports.__doc__ = "Get list of available COM ports"
 
     def exit(self):
         self.codee.exit()
+
     exit.__doc__ = "Exit and disconnect port"
 
     def __set_as_nano(self):
@@ -672,4 +719,3 @@ class CodeePy:
             'disabled': (0, 1)  # Rx, Tx, Crystal
         }
         self.codee.setup_layout(nano)
-

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="codeepy",
-    version="0.0.9",
+    version="0.1.1",
     author="Marita Fitzgerald",
     author_email="maritafitzgerald@gmail.com",
     description="A library for the Codee Robot",
