@@ -8,7 +8,6 @@ LICENSE:
     https://github.com/lzane/Fingers-Detection-using-OpenCV-and-Python
     http://creat-tabu.blogspot.com/2013/08/opencv-python-hand-gesture-recognition.html
     https://github.com/mahaveerverma/hand-gesture-recognition-opencv
-    https://github.com/Sadaival/Hand-Gestures
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,9 +30,11 @@ LICENSE:
 
     INSTRUCTIONS
     ============
+    1. Insert your COM port at line 69
     1. Run the program and ensure your hand is not in the blue capture area
     2. Press "b" to capture the background
-    3. Put your hand in the blue capture area and press "t" to gein gesture capture
+    3. Put your hand in the blue capture area and press "t" to start gesture capture
+    4. Codee will display number of fingers
     4. To reset the background, remove your hand from the blue capture area and press "r"
     5. To exit press "Esc"
 
@@ -46,6 +47,7 @@ LICENSE:
 import cv2
 import numpy as np
 import copy
+import math
 import sys
 from codeepy import CodeePy
 
@@ -56,6 +58,7 @@ threshold = 60  # BINARY threshold
 blurValue = 41  # GaussianBlur parameter
 bgSubThreshold = 50
 learningRate = 0
+cnt = 0 #finger count
 
 # variables
 isBgCaptured = 0  # bool, whether the background captured
@@ -78,6 +81,40 @@ def remove_bg(frame):
     return res
 
 
+def calculate_fingers(res, drawing):  # -> finished bool, cnt: finger count
+    #  convexity defect
+    hull = cv2.convexHull(res, returnPoints=False)
+    if len(hull) > 3:
+        defects = cv2.convexityDefects(res, hull)
+        if type(defects) != type(None):  # avoid crashing.   (BUG not found)
+
+            cnt = 0
+            for i in range(defects.shape[0]):  # calculate the angle
+                s, e, f, d = defects[i][0]
+                start = tuple(res[s][0])
+                end = tuple(res[e][0])
+                far = tuple(res[f][0])
+                a = math.sqrt((end[0] - start[0]) ** 2 + (end[1] - start[1]) ** 2)
+                b = math.sqrt((far[0] - start[0]) ** 2 + (far[1] - start[1]) ** 2)
+                c = math.sqrt((end[0] - far[0]) ** 2 + (end[1] - far[1]) ** 2)
+                angle = math.acos((b ** 2 + c ** 2 - a ** 2) / (2 * b * c))  # cosine theorem
+                if angle <= math.pi / 2:  # angle less than 90 degree, treat as fingers
+                    cnt += 1
+                    cv2.circle(drawing, far, 8, [211, 84, 0], -1)
+            return True, cnt
+    return False, 0
+
+def codee_display(cnt):
+    if cnt == 0:
+        board.display_number(cnt)
+    elif cnt == 1:
+        board.display_number(2)
+    elif cnt == 2:
+        board.display_number(3)
+    else:
+        board.display_number(4)
+
+
 # Camera
 camera = cv2.VideoCapture(0)
 camera.set(10, 200)
@@ -85,7 +122,8 @@ cv2.namedWindow('trackbar')
 cv2.createTrackbar('trh1', 'trackbar', threshold, 100, print_threshold)
 
 # Codee
-# board = CodeePy(get_com_port())
+board = CodeePy(get_com_port())
+
 
 while camera.isOpened():
     ret, frame = camera.read()
@@ -124,25 +162,18 @@ while camera.isOpened():
                     ci = i
 
             res = contours[ci]
-            # make a convex hull around the hand (red line)
             hull = cv2.convexHull(res)
             drawing = np.zeros(img.shape, np.uint8)
             cv2.drawContours(drawing, [res], 0, (0, 255, 0), 2)
             cv2.drawContours(drawing, [hull], 0, (0, 0, 255), 3)
 
+            isFinishCal, cnt = calculate_fingers(res, drawing)
             if triggerSwitch is True:
-                # define area of hull and area of hand
-                areahull = cv2.contourArea(hull)
-                areacnt = cv2.contourArea(res)
-                # find the percentage of area not covered by hand in convex hull
-                arearatio = ((areahull - areacnt) / areacnt) * 100
-                print(arearatio)
-                if arearatio < 11:
-                    print("rock")
-                elif  arearatio < 25:
-                    print("paper")
-                else:
-                    print("scissors")
+                if isFinishCal is True and cnt <= 4:
+                    print(cnt)
+                    codee_display(cnt)
+
+
         cv2.imshow('output', drawing)
 
     # Keyboard OP
