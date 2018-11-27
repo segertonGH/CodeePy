@@ -39,7 +39,11 @@ board = CodeePy('<Your COM port>')
 Now you have created your instance object please see the Example.py file to test the CodeePy functions.
 
 
+## Upgrading CodeePy
 
+```python
+pip install codeepy --upgrade
+```
 
 
 ## About Codee & Creative-Robotix
