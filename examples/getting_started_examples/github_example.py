@@ -43,7 +43,6 @@ CodeePy.get_com_ports()
 # you can replace "board" with the name of your Codee :)
 board = CodeePy('<Your port number>')
 
-help(CodeePy.CodeePy)
 # say text
 # board.say("Hello")
 
