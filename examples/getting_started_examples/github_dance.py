@@ -39,7 +39,7 @@ help(CodeePy)
 CodeePy.get_com_ports()
 
 # create CodeePy Instance and open connection
-board = CodeePy('<Your COM port>')
+board = CodeePy('COM4')
 
 # Dance intro loop
 countdown = 5
@@ -60,16 +60,12 @@ board.play_melody("chariots") #Start playing the music
 #Start arm swing
 board.swing_arms(2) #Start swinging arms
 
-#Spin from side to side
-board.led_scroll_text("abc")
+#Start head dance
+board.look_around(2) #Make head move from side to side
+time.sleep(16) #wait 5 seconds (while still doing all the above)
 
 #Stop arm swing
 board.stop_arms() #Stop swinging arms
-
-#Start head dance
-board.display_image("heart") #Change the LED Matrix display
-board.look_around(2) #Make head move from side to side
-time.sleep(8) #wait 5 seconds (while still doing all the above)
 
 #Reset codee
 board.reset_codee_body_and_exit()
