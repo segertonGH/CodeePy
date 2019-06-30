@@ -146,7 +146,7 @@ def get_letter_sr(question):
 CodeePy.get_com_ports()
 # Create a CodeePy instance so you can access its Class Methods
 # You can use your robots name in lieu of board ie <Your Robots Name> = CodeePy('<Your COM Port>')
-board = CodeePy('COM12')
+board = CodeePy('COM4')
 board.set_melody_tempo(4)
 recognizer = sr.Recognizer()
 recognizer.pause_threshold = 0.6 # 0.8 is default
