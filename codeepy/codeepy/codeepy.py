@@ -3,6 +3,8 @@ LICENSE:
 ===============
 
     Copyright (c) 2018 Marita Fitzgerald and the Creative Science Foundation. All rights reserved.
+    
+    Last updated 10/12/2023 Simon Egerton
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,7 +22,7 @@ LICENSE:
 
 NOTES
 ===============
-Version: 0.1.1
+Version: 1.0.1
 
 
 QUICK TUTORIAL:
@@ -67,15 +69,15 @@ board.stop_arms()
 board.exit()
 
 #Set degrees of both arms
-#board.set_arms(0, 0)
+board.set_arms(0, 0)
 
 #Look around
-# set look around to on
+# set head to look around
 board.look_around(2)
 #set delay
 time.sleep(3)
-#stop look around
-board.stop_look_around()
+#stop head
+board.stop_head()
 board.exit()
 
 # Set head image
@@ -86,7 +88,7 @@ board.display_image("tick")
 # Allow time for text to scroll
 # time.sleep(3)
 # Stop Text Scroll
-# board.stop_led_scroll_text()
+board.stop_led_scroll_text()
 
 # Display number
 board.display_number(85)
@@ -100,12 +102,12 @@ board.set_led_display_pixel(0, 0, True)
 # Changebluetooth name
 board.change_bot_bluetooth_name("happybot")
 
-# Run single line sensor id no 5 for a maximum of 4 seconds
-# board.read_line_sensor(5,4)
+# Run single line sensor id no 5
+board.read_line_sensor(5)
 
-# returns an array of all the sensor values that detect a black line, 1 is true 0 is false
-# You can all 5 or inner 3 sensors as int
-print(board.read_line_position(5))
+# Returns the state of all line snesors as a single line position value, and a state integer 
+# You can use 5 or inner 3 sensors as int
+print(board.read_line_sensors_position_and_state(5))
 
 # Test Codee's wheel servos
 for x in range(10):
@@ -116,7 +118,14 @@ board.set_left_wheel_velocity(0)
 board.set_right_wheel_velocity(0)
 
 # Set both wheel speeds
-#board.set_wheel_velocities(10,10)
+board.set_wheel_velocities(10,10)
+
+# Read the current ultrasound value 
+print(board.read_ultrasound_distance_cm)
+
+# Read both AUX inputs 
+print(board.read_aux_input(1))
+print(board.read_aux_input(2))
 
 # Close the serial connection & exit cleanly
 board.exit()
@@ -124,15 +133,16 @@ board.exit()
 
 import math
 import time
-import pyfirmata
+from tkinter import CHAR
+import pyfirmata2
 import serial
 import serial.tools.list_ports
-from pyfirmata import util
+from pyfirmata2 import util
 
 
 class CodeePy:
     global line_sensor_1, line_sensor_2, line_sensor_3, line_sensor_4, line_sensor_5, notedictionary
-
+   
     def __init__(self, port):
         """
         The constructor requires the programmer to pass the port name Codee is connected to either via USB(serial) or Bluetooth
@@ -140,15 +150,39 @@ class CodeePy:
         """
         self.port = port
         # instantiate codee as Pyfirmata object
-        self.codee = pyfirmata.Arduino(port)
+        self.codee = pyfirmata2.Arduino(port)
         self.__set_as_nano()
-        # instantiate handler for commands
-        self.codee.add_cmd_handler(pyfirmata.STRING_DATA, self._messagehandler)
+        # connection reset and hello
+        self.connect_reset_and_hello()
+        # set up AUX inputs
+        self.aux_1 = self.codee.get_pin('a:0:i')
+        self.aux_2 = self.codee.get_pin('a:1:i')
+        # set up line sensors
         self.line_sensor_1 = self.codee.get_pin('a:2:i')
         self.line_sensor_2 = self.codee.get_pin('a:3:i')
         self.line_sensor_3 = self.codee.get_pin('a:4:i')
         self.line_sensor_4 = self.codee.get_pin('a:5:i')
         self.line_sensor_5 = self.codee.get_pin('a:6:i')
+        #initialise US variable
+        self.us_reading = 0
+        # initialise AUX variables 
+        self.aux_1_reading, self.aux_2_reading = 0, 0
+        # initilaise line state variables
+        self.line_sensor_1_state, self.line_sensor_2_state, self.line_sensor_3_state, self.line_sensor_4_state, self.line_sensor_5_state = 0, 0, 0, 0, 0
+        # instantiate handlers for line sensors
+        self.line_sensor_1.register_callback(self.line_sensor_1_callback)
+        self.line_sensor_2.register_callback(self.line_sensor_2_callback)
+        self.line_sensor_3.register_callback(self.line_sensor_3_callback)
+        self.line_sensor_4.register_callback(self.line_sensor_4_callback)
+        self.line_sensor_5.register_callback(self.line_sensor_5_callback)
+        # instantiate handlers for AUX inputs
+        self.aux_1.register_callback(self.aux_1_callback)
+        self.aux_2.register_callback(self.aux_2_callback)
+        # default sampling interval of 19ms
+        self.codee.samplingOn()
+        # instantiate handler for commands
+        self.codee.add_cmd_handler(pyfirmata2.STRING_DATA, self._messagehandler_ultrasound)
+        # note dictionary for user melodies amd tones
         self.notedictionary = {"RST": 0,
                                "C1": 33, "CS1": 35, "D1": 37, "DS1": 39, "E1": 41, "F1": 44, "FS1": 46, "G1": 49,
                                "GS1": 52,
@@ -171,11 +205,36 @@ class CodeePy:
                                "G7": 3136, "GS7": 3322, "A7": 3520, "AS7": 3729, "B7": 3951,
                                "C8": 4186, "CS8": 4435, "D8": 4699, "DS8": 4978}
 
-    # Call back definition
+    # Call back definitions
 
-    def _messagehandler(self, *args, **kwargs):
-        print("in handler")
-        print(args)
+    def line_sensor_1_callback(self, data):
+        self.line_sensor_1_state = (int(data + 0.5))
+
+    def line_sensor_2_callback(self, data):
+        self.line_sensor_2_state = (int(data + 0.5))
+
+    def line_sensor_3_callback(self, data):
+        self.line_sensor_3_state = (int(data + 0.5))
+
+    def line_sensor_4_callback(self, data):
+        self.line_sensor_4_state = (int(data + 0.5))
+
+    def line_sensor_5_callback(self, data):
+        self.line_sensor_5_state = (int(data + 0.5))
+        
+    def aux_1_callback(self, data):
+        self.aux_1_reading = data
+
+    def aux_2_callback(self, data):
+        self.aux_2_reading = data
+
+    # command message handler
+    def _messagehandler_ultrasound(self, *args, **kwargs):
+        self.us_reading = 0
+        for digit in args:
+            #print("Digit 0x{:02x}".format(digit))
+            if (digit == 0x0D): break;
+            self.us_reading = (self.us_reading * 10) + (digit - 0x30)
 
     # Public Functions
 
@@ -184,7 +243,7 @@ class CodeePy:
         Checks firmata version is 2.5
         @return: True is Firmata is 2.5, False if it is not
         """
-        print("Running pyFirmata version:\t%s" % pyfirmata.__version__)
+        print("Running pyFirmata version:\t%s" % pyfirmata2.__version__)
         if self.codee.get_firmata_version()[0] == 2 and self.codee.get_firmata_version()[1] == 5:
             print("Firmata version check passed OK")
             return True
@@ -299,7 +358,7 @@ class CodeePy:
             melodylist.append(int(duration))
         self.codee.send_sysex(0x09, melodylist)
 
-    play_notes.__doc__ = "Play notes from passed in List"
+    play_notes_with_duration.__doc__ = "Play notes from passed in List"
 
     def swing_arms(self, speed):
         """
@@ -315,28 +374,24 @@ class CodeePy:
     def set_right_arm(self, degrees):
         """
         This method will set Codees right arm to given degree
-        @param degrees: an int value greater between -90 and 90 inclusive
+        @param degrees: an int value greater between -50 and 50 inclusive
         """
-        if abs(degrees) < 91:
-            degrees = 90 + degrees
-            self.codee.servo_config(5, 544, 2400, degrees)
-            time.sleep(.5)
-        else:
-            print("Please enter a number between -90 and 90")
-
+        degrees = 90 + degrees
+        if (degrees) < 50: degrees = 50
+        if (degrees > 130): degrees = 130
+        self.codee.send_sysex(0x0E, [4, degrees])
+        
     set_right_arm.__doc__ = "Set right servo angle to degrees x"
 
     def set_left_arm(self, degrees):
         """
         This method will set Codees left arm to given degree
-        @param degrees: an int value between -90 and 90 inclusive
+        @param degrees: an int value between -50 and 50 inclusive
         """
-        if abs(degrees) < 91:
-            degrees = 90 - degrees
-            self.codee.servo_config(4, 544, 2400, degrees)
-            time.sleep(.5)
-        else:
-            print("Please enter a number between -90 and 90")
+        degrees = 90 + degrees
+        if (degrees) < 50: degrees = 50
+        if (degrees > 130): degrees = 130    
+        self.codee.send_sysex(0x0E, [3, degrees])
 
     set_left_arm.__doc__ = "Set left servo angle to degrees x"
 
@@ -370,25 +425,24 @@ class CodeePy:
 
     look_around.__doc__ = "Start head movement"
 
-    def stop_look_around(self):
+    def stop_head(self):
         """
         This method will stop Codee's head movements
         """
         self.codee.send_sysex(0x0C, [0, 0])
 
-    stop_look_around.__doc__ = "Stop head movement"
+    stop_head.__doc__ = "Stop head movement"
 
     def set_head(self, degrees):
         """
         This method set Codee's head to a given degree
-        @param degrees: an int value between -50 and 50 inclusive
+        @param degrees: an int value between -40 and 40 inclusive
         """
-        if abs(degrees) < 51:
-            degrees = 90 + degrees
-            self.codee.servo_config(6, 544, 2400, degrees)
-            time.sleep(.5)
-        else:
-            print("Please enter a number between -50 and 50")
+        
+        degrees = 90 + degrees
+        if (degrees) < 50: degrees = 50
+        if (degrees > 130): degrees = 130    
+        self.codee.send_sysex(0x0E, [5, degrees])
 
     set_head.__doc__ = "Set head to x position"
 
@@ -414,7 +468,7 @@ class CodeePy:
         if image == "blank": imagetodisp = 0x0D
         self.codee.send_sysex(0x0A, [0x01, imagetodisp])
 
-    set_head.__doc__ = "Set head to a image to selected image: \n" \
+    display_image.__doc__ = "Set head to selected image: \n" \
                        "smile \n" \
                        "neutral \n" \
                        "frown \n" \
@@ -434,7 +488,6 @@ class CodeePy:
         This method will make Codees LED matrix scroll given text
         @param text: text to scroll as string
         """
-        text = text.strip()
         if len(text) < 30:
             scroll_list = [0x02, True]
             for x in text:
@@ -453,6 +506,13 @@ class CodeePy:
         self.codee.send_sysex(0x0A, scroll_list)
 
     stop_led_scroll_text.__doc__ = "Stop scroll text on Codee head display"
+
+    def display_character(self, character):
+        """
+        This method will make Codees LED matrix display a character
+        @param character : character to display as single character
+        """
+        self.codee.send_sysex(0x0A, [0x07, ord(character[0])])
 
     def display_number(self, number):
         """
@@ -488,31 +548,27 @@ class CodeePy:
 
     set_led_display_pixel.__doc__ = "Set individual pixel state (True/False)"
 
-    def set_left_wheel_velocity(self, leftspeed):
+    def set_left_wheel_velocity(self, speed):
         """
         This method will set the speed of the left wheel servo
-        @param leftspeed: wheel speed between 0 and 180 inclusive as int
+        @param leftspeed: wheel speed between -30 and 30 inclusive as int
         """
-        leftspeed = 90 + leftspeed
-        if leftspeed < 0:
-            leftspeed = 0
-        if leftspeed > 180:
-            leftspeed = 180
-        self.codee.send_sysex(0x0E, [leftspeed, 0x00])
+        speed = 90 + speed
+        if speed < 60: leftspeed = 60
+        if speed > 120: leftspeed = 120
+        self.codee.send_sysex(0x0E, [0x00, speed])
 
     set_left_wheel_velocity.__doc__ = "Set left wheel velocity"
 
-    def set_right_wheel_velocity(self, rightspeed):
+    def set_right_wheel_velocity(self, speed):
         """
         This method will set the speed of the right wheel servo
-        @param rightspeed: wheel speed between 0 and 180 inclusive as int
+        @param rightspeed: wheel speed between -30 and 30 inclusive as int
         """
-        rightspeed = 90 - rightspeed
-        if rightspeed < 0:
-            rightspeed = 0
-        if rightspeed > 180:
-            rightspeed = 180
-        self.codee.send_sysex(0x0E, [0x00, rightspeed])
+        speed = 90 - speed
+        if speed < 60: speed = 60
+        if speed > 120: speed = 120
+        self.codee.send_sysex(0x0E, [0x01, speed])
 
     set_right_wheel_velocity.__doc__ = "Set right wheel velocity"
 
@@ -531,7 +587,7 @@ class CodeePy:
         """
         This method will stop both wheel servos
         """
-        self.codee.send_sysex(0x0E, [0x5A, 0x5A])
+        self.codee.send_sysex(0x0E, [0x02])
 
     stop_wheels.__doc__ = "Stop wheels"
 
@@ -555,102 +611,107 @@ class CodeePy:
 
     change_bot_bluetooth_name.__doc__ = "Change Bluetooth name"
 
-    def read_line_sensor(self, sensor_id, duration):
+    def read_aux_input(self, aux_id):
+        """
+        This method will read the value of the AUX sensor
+        and return a value of between 0 and 1
+        @param aux_id: AUX ID as int either 1 or 2
+        """
+        if (aux_id == 1 or aux_id == 2):
+            if aux_id == 1: return self.aux_1_reading
+            if aux_id == 2: return self.aux_2_reading
+        else:
+            print("AUX ID should be either 1 or 2")
+            
+    read_aux_input.__doc__ = "Read status of AUX inputs"
+                
+    def read_line_sensor(self, sensor_id):
         """
         This method will read the value of one line sensor
         0.0 min value = black, 1.0 max value = white
-        @param sensor_id: line sensor if as int
+        @param sensor_id: line sensor ID as int
         @param duration: time limit on sensor read
         @return result: the first read value that is not None else None is function has timed out
         """
         global line_sensor, result
-        if sensor_id == 1: line_sensor = self.line_sensor_1
-        if sensor_id == 2: line_sensor = self.line_sensor_2
-        if sensor_id == 3: line_sensor = self.line_sensor_3
-        if sensor_id == 4: line_sensor = self.line_sensor_4
-        if sensor_id == 5: line_sensor = self.line_sensor_5
-        it = util.Iterator(self.codee)
-        it.start()
-        try:
-            for x in range(duration * 4):
-                time.sleep(0.3)
-                result = line_sensor.read()
-                if result is not None:
-                    print(result)
-                    return result
-        except KeyboardInterrupt:
-            self.codee.exit()
-        return result
+        if (sensor_id >= 1 and sensor_id <= 5):
+            if sensor_id == 1: line_sensor = self.line_sensor_1.state
+            if sensor_id == 2: line_sensor = self.line_sensor_2.state
+            if sensor_id == 3: line_sensor = self.line_sensor_3.state
+            if sensor_id == 4: line_sensor = self.line_sensor_4.state
+            if sensor_id == 5: line_sensor = self.line_sensor_5.state
+            return result
+        else:
+            print("sensor ID should be between 1 and 5")
 
-    read_line_sensor.__doc__ = "Read of line IR sensor"
+    read_line_sensor.__doc__ = "Read status of IR line sensor"
 
-    def read_line_position(self, no_sensors):
+    def read_line_sensors_position_and_state(self, no_sensors):
         """
         This method will set the speed of both wheel servos
         @param no_sensors: no_sensor is either 3 or 5 as int
         @return array of int values 1 = black 0 = white
         """
         global sensor_result1, sensor_result2, sensor_result3, sensor_result4, sensor_result5, output_arr
-        output_arr = []
-        results_are_none = True
+        position, online, sensor_id = 0, 0, 0
+        line_sensors = []
 
         if (no_sensors == 3 or no_sensors == 5):
-            it = util.Iterator(self.codee)
-            it.start()
-            try:
-                while results_are_none:
-                    time.sleep(0.07)
-                    if (no_sensors == 5):
-                        sensor_result1 = self.line_sensor_1.read()
-                        print(sensor_result1)
-                        if sensor_result1 is not None:
-                            sensor_result1 = 1 if sensor_result1 < 0.5 else 0
-                            output_arr.append(sensor_result1)
-                    sensor_result2 = self.line_sensor_2.read()
-                    print(sensor_result2)
-                    if sensor_result2 is not None:
-                        sensor_result2 = 1 if sensor_result2 < 0.5 else 0
-                        output_arr.append(sensor_result2)
-                    sensor_result3 = self.line_sensor_3.read()
-                    print(sensor_result3)
-                    if sensor_result3 is not None:
-                        sensor_result3 = 1 if sensor_result3 < 0.5 else 0
-                        output_arr.append(sensor_result3)
-                    sensor_result4 = self.line_sensor_4.read()
-                    print(sensor_result4)
-                    if sensor_result4 is not None:
-                        sensor_result4 = 1 if sensor_result4 < 0.5 else 0
-                        output_arr.append(sensor_result4)
-                    if no_sensors == 5:
-                        sensor_result5 = self.line_sensor_5.read()
-                        print(sensor_result5)
-                        if sensor_result5 is not None:
-                            sensor_result5 = 1 if sensor_result5 < 0.5 else 0
-                            output_arr.append(sensor_result5)
-                    if no_sensors == 3 and len(output_arr) == 3:
-                        results_are_none = False
-                    if no_sensors == 5 and len(output_arr) == 5:
-                        results_are_none = False
-            except KeyboardInterrupt:
-                self.codee.exit()
-            return output_arr
+            # set centre
+            centre = 3
+            if (no_sensors == 3): centre = 2            
+
+            # read state of line sensors
+            line_sensors.append(self.line_sensor_1_state)
+            line_sensors.append(self.line_sensor_2_state)
+            line_sensors.append(self.line_sensor_3_state)
+            line_sensors.append(self.line_sensor_4_state)
+            line_sensors.append(self.line_sensor_5_state)
+            
+            # calculate line position
+            for sensor in line_sensors:
+                sensor_id = sensor_id + 1
+                if (sensor == 0):
+                    online = online + 1
+                    position = position + sensor_id
+            
+            # return results, line_position and line_state
+            if (online == 0):
+                return no_sensors + 1, 2 * no_sensors
+            elif (online == no_sensors):
+                return no_sensors, (2 * no_sensors) - 1
+            else:
+                return (position / online) - centre, int(2 * (((position / online) - centre) + 2))
         else:
             print("no of sensors must be 3 or 5")
-            return output_arr
+            return 0
 
-    read_line_position.__doc__ = "returns an array of all the sensor values that detect a black line, 1 is true 0 is false"
+    read_line_sensors_position_and_state.__doc__ = "returns an array of all the sensor values that detect a black line, 1 is true 0 is false"
 
-    def set_led_display_rows(self, hex):
+    def set_led_display_rows(self, hex_display_row_data):
         """
         This method will set the display rows
-        @param hex: input row as hex
+        @param hex: input rows as a 64 bit hex number i.e. 0x1122334455667788 where each two digit hex number is row, top to bottom
         """
-        if len(hex) == 16:
-            self.codee.send_sysex(0x0A, [0x04])
+        hex_display_data = [(hex_display_row_data >> (i * 8)) & 0xFF for i in range(7, -1, -1)]
+        if len(hex_display_data) == 8:
+            self.codee.send_sysex(0x0A, [0x04] + hex_display_data)
         else:
             print("Please enter 16 hex digits")
 
     set_led_display_rows.__doc__ = "Set active display rows"
+    
+    def connect_reset_and_hello(self):
+        """
+        This method will stop Codees limbs and reset the display and play "Hello World"
+        """
+        self.stop_arms()
+        self.stop_head()
+        self.stop_wheels()
+        self.display_image("smile")
+        self.say("Hello World!")
+        
+    connect_reset_and_hello.__doc__ = "Stop codee, reset display and say helllo world"
 
     def reset_codee_body_and_exit(self):
         """
@@ -660,7 +721,7 @@ class CodeePy:
         self.stop_arms()
         self.set_right_arm(-90)
         self.set_left_arm(-90)
-        self.stop_look_around()
+        self.stop_head()
         self.set_head(0)
         self.stop_wheels()
         self.display_clear()
@@ -668,23 +729,19 @@ class CodeePy:
 
     reset_codee_body_and_exit.__doc__ = "Reset codee's body and disconnect"
 
-    def robot_ultrasound_distance_reading(self):
+    def read_ultrasound_distance_cm(self):
         """
-        This method is still in development
+        This method will read Codees ultrasound sensor and return the result from 2 to 60 cm
+        A result of 0 indicates no object detected
         """
         data = []
         # start ultrasound
         self.codee.send_sysex(0x08, data)
-        print("sent sysex")
-        it = util.Iterator(self.codee)
-        it.start()
-        try:
-            # while self.codee.bytes_available():
-            if self.codee.bytes_available():
-                self.codee.iterate()
-                time.sleep(0.2)  # time in secs betweens reads
-        except KeyboardInterrupt:
-            self.codee.exit()
+        # allow enough time for callback to finish
+        time.sleep(0.1) 
+        return self.us_reading
+
+    read_ultrasound_distance_cm.__doc__ = "Returns ultrasound distance sensor reading in cm"
 
     # Helper Functions
 

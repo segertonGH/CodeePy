@@ -5,21 +5,23 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="codeepy",
-    version="0.1.1",
+    version="1.0.1",
     author="Marita Fitzgerald",
     author_email="maritafitzgerald@gmail.com",
+    maintainer="Simon Egerton",
+    maintainer_email="segerton@creativescience.com",
     description="A library for the Codee Robot",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/mefitzgerald/CodeePy",
+    url="https://github.com/segertonGH/CodeePy",
     packages=setuptools.find_packages(),
     classifiers=[
-        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
     ],
 	install_requires=[
-   'pyfirmata',
+   'pyfirmata2',
    'pyserial'
 	],
 )
