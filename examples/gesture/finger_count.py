@@ -66,7 +66,7 @@ triggerSwitch = False  # if true, keyboard simulator works
 
 
 def get_com_port():
-    return 'COM4'
+    return 'COM12'
 
 
 def print_threshold(thr):
@@ -106,13 +106,13 @@ def calculate_fingers(res, drawing):  # -> finished bool, cnt: finger count
 
 def codee_display(cnt):
     if cnt == 0:
-        board.display_number(cnt)
+        codee.display_number(cnt)
     elif cnt == 1:
-        board.display_number(2)
+        codee.display_number(2)
     elif cnt == 2:
-        board.display_number(3)
+        codee.display_number(3)
     else:
-        board.display_number(4)
+        codee.display_number(4)
 
 
 # Camera
@@ -122,7 +122,7 @@ cv2.namedWindow('trackbar')
 cv2.createTrackbar('trh1', 'trackbar', threshold, 100, print_threshold)
 
 # Codee
-board = CodeePy(get_com_port())
+codee = CodeePy(get_com_port())
 
 
 while camera.isOpened():

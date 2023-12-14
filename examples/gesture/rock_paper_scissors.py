@@ -33,7 +33,7 @@ LICENSE:
     ============
     1. Run the program and ensure your hand is not in the blue capture area
     2. Press "b" to capture the background
-    3. Put your hand in the blue capture area and press "t" to gein gesture capture
+    3. Put your hand in the blue capture area and press "t" to gain gesture capture
     4. To reset the background, remove your hand from the blue capture area and press "r"
     5. To exit press "Esc"
 
@@ -63,7 +63,7 @@ triggerSwitch = False  # if true, keyboard simulator works
 
 
 def get_com_port():
-    return 'COM4'
+    return 'COM12'
 
 
 def print_threshold(thr):
@@ -85,7 +85,7 @@ cv2.namedWindow('trackbar')
 cv2.createTrackbar('trh1', 'trackbar', threshold, 100, print_threshold)
 
 # Codee
-board = CodeePy(get_com_port())
+codee = CodeePy(get_com_port())
 
 while camera.isOpened():
     ret, frame = camera.read()
@@ -139,13 +139,13 @@ while camera.isOpened():
                 print(arearatio)
                 if arearatio < 11:
                     print("rock")
-                    board.display_image("rock")
+                    codee.display_image("rock")
                 elif  arearatio < 25:
                     print("paper")
-                    board.display_image("paper")
+                    codee.display_image("paper")
                 else:
                     print("scissors")
-                    board.display_image("sissors")
+                    codee.display_image("sissors")
         cv2.imshow('output', drawing)
 
     # Keyboard OP

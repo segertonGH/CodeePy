@@ -49,7 +49,7 @@ def sad_tone():
     """
     This method makes codee play a sad sound
     """
-    board.play_notes_with_duration(["F4.1", "B3.1"])
+    codee.play_notes_with_duration(["F4.1", "B3.1"])
 
 
 def get_sr(question):
@@ -77,7 +77,7 @@ def get_sr(question):
 CodeePy.get_com_ports()
 # Create a CodeePy instance so you can access its Class Methods
 # You can use your robots name in lieu of board ie <Your Robots Name> = CodeePy('<Your COM Port>')
-board = CodeePy('COM12')
+codee = CodeePy('COM12')
 # Create a CodeeListen instance so you can access its Class Methods
 recognizer = sr.Recognizer()
 recognizer.pause_threshold = 0.6 # 0.8 is default
@@ -88,40 +88,41 @@ while True:
 
     if "arms" in command:
         if "swing" in command:
-            board.swing_arms(3, True)
+            codee.swing_arms(3)
         elif "up" in command:
-            board.set_arms(90,90)
+            codee.set_arms(50,50)
         elif "down" in command:
-            board.set_arms(-90,-90)
+            codee.set_arms(-50,-50)
         else:
-            board.stop_arms()
+            codee.stop_arms()
     elif "forward" in command:
-        board.set_wheel_velocities(10,10)
+        codee.set_wheel_velocities(10,10)
     elif "head" in command:
         if "look" in command:
-            board.look_around(3,True)
+            codee.look_around(3)
         else:
-            board.stop_look_around()
+            codee.stop_head()
     elif "sing" in command:
-        board.play_melody("star wars")
+        codee.set_melody_tempo(1)
+        codee.play_melody("star wars")
     elif "happy" in command:
-        board.display_image("smile")
-        board.swing_arms(3,True)
+        codee.display_image("smile")
+        codee.swing_arms(3)
     elif "sad" in command:
-        board.display_image("frown")
+        codee.display_image("frown")
     elif "love" in command:
-        board.display_image("heart")
-        board.say("wooooottttwooooooooo")
+        codee.display_image("heart")
+        codee.say("wooooottttwooooooooo")
     elif "stop" in command:
-        board.stop_arms()
-        board.stop_wheels()
-        board.stop_look_around()
+        codee.stop_arms()
+        codee.stop_wheels()
+        codee.stop_look_around()
     elif "exit" in command or "quit" in command or "end" in command:
-        board.reset_codee_body_and_exit()
+        codee.reset_codee_body_and_exit()
         time.sleep(2)
         break
     else:
-        board.set_melody_tempo(3)
+        codee.set_melody_tempo(3)
         sad_tone()
 
 

@@ -719,12 +719,16 @@ class CodeePy:
         stop head, wheel movements and clear the display then disconnect codee
         """
         self.stop_arms()
-        self.set_right_arm(-90)
-        self.set_left_arm(-90)
+        self.set_right_arm(0)
+        self.set_left_arm(0)
         self.stop_head()
         self.set_head(0)
         self.stop_wheels()
         self.display_clear()
+        time.sleep(2) # allow time for the servos to move
+        self.stop_arms()
+        self.stop_head()
+        self.display_image("smile")
         self.exit()
 
     reset_codee_body_and_exit.__doc__ = "Reset codee's body and disconnect"

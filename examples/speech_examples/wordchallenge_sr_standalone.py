@@ -66,7 +66,7 @@ def display_guess_list(remaining, g_list):
         msg = str(remaining) + ":" + guess_text
     else:
         msg = "?" + guess_text
-    board.led_scroll_text(msg)
+    codee.led_scroll_text(msg)
     print(guess_text)
 
 
@@ -74,32 +74,32 @@ def correct():
     """
     This method makes codee respond a correct letter
     """
-    board.display_clear()
-    board.display_image("tick")
-    board.swing_arms(4, True)
+    codee.display_clear()
+    codee.display_image("tick")
+    codee.swing_arms(2)
     time.sleep(3)
-    board.stop_arms()
-    board.display_clear()
+    codee.stop_arms()
+    codee.display_clear()
 
 
 def false():
     """
     This method makes codee respond an incorrect letter
     """
-    board.display_clear()
-    board.display_image("cross")
-    board.set_arms(-90, -90)
-    board.look_around(2, True)
+    codee.display_clear()
+    codee.display_image("cross")
+    codee.set_arms(-50, -50)
+    codee.look_around(2)
     time.sleep(3)
-    board.stop_look_around()
-    board.display_clear()
+    codee.stop_head()
+    codee.display_clear()
 
 
 def happy_tone():
     """
     This method makes codee play a happy sound
     """
-    board.play_notes(["C5", "E5", "C5", "E5", "C5"], 1)
+    codee.play_notes(["C5", "E5", "C5", "E5", "C5"], 1)
     time.sleep(1)
 
 
@@ -107,7 +107,7 @@ def sad_tone():
     """
     This method makes codee play a sad sound
     """
-    board.play_notes_with_duration(["F4.1", "B3.1"])
+    codee.play_notes_with_duration(["F4.1", "B3.1"])
 
 
 def get_sr(question):
@@ -146,8 +146,8 @@ def get_letter_sr(question):
 CodeePy.get_com_ports()
 # Create a CodeePy instance so you can access its Class Methods
 # You can use your robots name in lieu of board ie <Your Robots Name> = CodeePy('<Your COM Port>')
-board = CodeePy('COM4')
-board.set_melody_tempo(4)
+codee = CodeePy('COM12')
+codee.set_melody_tempo(4)
 recognizer = sr.Recognizer()
 recognizer.pause_threshold = 0.6 # 0.8 is default
 microphone = sr.Microphone()
@@ -180,7 +180,7 @@ while True:
 
         occurrences = rand_word.count(letter)  # get occurrences of specified letter in word
         indices = [i for i, a in enumerate(rand_word) if a == letter]  # list of index's where the letter occurs
-        board.display_clear()
+        codee.display_clear()
         # add letter to guess_list if correct
         if len(indices) > 0:
             for x in indices:
@@ -202,10 +202,10 @@ while True:
         print("Better luck next time!")
         sad_tone()
         false()
-        board.display_clear()
-        board.led_scroll_text("=" + rand_word)
+        codee.display_clear()
+        codee.led_scroll_text("=" + rand_word)
 
     play_again = get_sr("Would you like to play again?")
     if play_again == "no" or play_again == "n":
-        board.reset_codee_body_and_exit()
+        codee.reset_codee_body_and_exit()
         break
