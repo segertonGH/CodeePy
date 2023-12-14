@@ -35,100 +35,100 @@ help(CodeePy)
 CodeePy.get_com_ports()
 
 # create CodeePy Instance and open connection
-board = CodeePy('<Your COM Port>')
+codee = CodeePy('<Your COM Port>')
 
 # say text
-board.say("Hello")
+codee.say("Hello")
 
 # set melody tempo & play melody
-board.set_melody_tempo(2)
-board.play_melody("little lamb")
+codee.set_melody_tempo(2)
+codee.play_melody("little lamb")
 
 # play tone
-board.play_tone(2000, 300)
+codee.play_tone(2000, 300)
 
 # play notes fixed duration
-board.play_notes(["C4", "D4", "E4", "F4", "G4", "A4", "B4", "C5"], 1)  #C Major Scale
-board.exit()
+codee.play_notes(["C4", "D4", "E4", "F4", "G4", "A4", "B4", "C5"], 1)  #C Major Scale
+codee.exit()
 
 #play notes with variable duration
-board.play_notes_with_duration(["C4.1", "D4.3", "E4.1", "F4.2", "G4.1", "A4.3", "B4.1", "C5.1"])
-board.exit()
+codee.play_notes_with_duration(["C4.1", "D4.3", "E4.1", "F4.2", "G4.1", "A4.3", "B4.1", "C5.1"])
+codee.exit()
 
 #set left arm 30 degrees
-board.set_left_arm(30)
-board.exit()
+codee.set_left_arm(30)
+codee.exit()
 
 #Swing both arms for 5 seconds then stop
 #set arms to on
-board.swing_arms(2)
+codee.swing_arms(2)
 #set delay
 time.sleep(5)
 #stop arms
-board.stop_arms()
-board.exit()
+codee.stop_arms()
+codee.exit()
 
 #Set degrees of both arms
-board.set_arms(0, 0)
+codee.set_arms(0, 0)
 
 #Look around
 # set head to look around
-board.look_around(2)
+codee.look_around(2)
 #set delay
 time.sleep(3)
 #stop head
-board.stop_head()
-board.exit()
+codee.stop_head()
+codee.exit()
 
 # Set head image
-board.display_image("tick")
+codee.display_image("tick")
 
 # Text scroll
-# board.led_scroll_text("abcde")
+codee.led_scroll_text("abcde")
 # Allow time for text to scroll
 # time.sleep(3)
 # Stop Text Scroll
-board.stop_led_scroll_text()
+codee.stop_led_scroll_text()
 
 # Display number
-board.display_number(85)
+codee.display_number(85)
 
 # Clear Display
-board.display_clear()
+codee.display_clear()
 
 # Set LED display pixel
-board.set_led_display_pixel(0, 0, True)
+codee.set_led_display_pixel(0, 0, True)
 
 # Changebluetooth name
-board.change_bot_bluetooth_name("happybot")
+codee.change_bot_bluetooth_name("happybot")
 
 # Run single line sensor id no 5
-board.read_line_sensor(5)
+codee.read_line_sensor(5)
 
 # Returns the state of all line snesors as a single line position value, and a state integer 
 # You can use 5 or inner 3 sensors as int
-print(board.read_line_sensors_position_and_state(5))
+print(codee.read_line_sensors_position_and_state(5))
 
 # Test Codee's wheel servos
 for x in range(10):
-    board.set_left_wheel_velocity(10)
-    board.set_right_wheel_velocity(10)
+    codee.set_left_wheel_velocity(10)
+    codee.set_right_wheel_velocity(10)
     time.sleep(0.25)
-board.set_left_wheel_velocity(0)
-board.set_right_wheel_velocity(0)
+codee.set_left_wheel_velocity(0)
+codee.set_right_wheel_velocity(0)
 
 # Set both wheel speeds
-board.set_wheel_velocities(10,10)
+codee.set_wheel_velocities(10,10)
 
 # Read the current ultrasound value 
-print(board.read_ultrasound_distance_cm)
+print(codee.read_ultrasound_distance_cm)
 
 # Read both AUX inputs 
-print(board.read_aux_input(1))
-print(board.read_aux_input(2))
+print(codee.read_aux_input(1))
+print(codee.read_aux_input(2))
 
 # Close the serial connection & exit cleanly
-board.exit()
+codee.exit()
 """
 
 import math
@@ -766,7 +766,7 @@ class CodeePy:
 
     def __set_as_nano(self):
         """
-        Sets board spec to nano
+        Sets Firmata spec to nano
         """
         nano = {
             'digital': tuple(x for x in range(14)),

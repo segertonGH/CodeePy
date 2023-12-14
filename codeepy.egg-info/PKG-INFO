@@ -5,8 +5,6 @@ Summary: A library for the Codee Robot
 Home-page: https://github.com/segertonGH/CodeePy
 Author: Marita Fitzgerald
 Author-email: maritafitzgerald@gmail.com
-Maintainer: Simon Egerton
-Maintainer-email: segerton@creativescience.com
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
 Classifier: Operating System :: OS Independent

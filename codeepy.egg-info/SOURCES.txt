@@ -1,6 +1,8 @@
 LICENSE
 README.md
 setup.py
+codeepy/__init__.py
+codeepy/codeepy.py
 codeepy.egg-info/PKG-INFO
 codeepy.egg-info/SOURCES.txt
 codeepy.egg-info/dependency_links.txt

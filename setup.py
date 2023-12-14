@@ -8,8 +8,6 @@ setuptools.setup(
     version="1.0.1",
     author="Marita Fitzgerald",
     author_email="maritafitzgerald@gmail.com",
-    maintainer="Simon Egerton",
-    maintainer_email="segerton@creativescience.com",
     description="A library for the Codee Robot",
     long_description=long_description,
     long_description_content_type="text/markdown",
