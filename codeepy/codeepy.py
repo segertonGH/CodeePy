@@ -828,14 +828,14 @@ class CodeePy:
     
     def __firmata_command(self, command, data):
         """
-        This method will issue a firmata command to codee and return the recrived value back to the calling method.
+        This method will issue a firmata command to codee and return the received value back to the calling method.
         """
         value = 0
         # aquire command mutex lock
         self.command_mutex.acquire()
         # aquire command response mutex lock, step 1
         self.command_response_mutex.acquire()
-        # start ultrasound
+        # issue firmata command 
         self.codee.send_sysex(command, data)
         # aquire command response mutex lock, step 2
         self.command_response_mutex.acquire()
