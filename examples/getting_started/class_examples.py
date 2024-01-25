@@ -3,6 +3,8 @@ LICENSE:
 ===============
 
     Copyright (c) 2018 Marita Fitzgerald and the Creative Science Foundation. All rights reserved.
+    
+    Last updated 10/12/2023 Simon Egerton
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -44,7 +46,7 @@ CodeePy.get_com_ports()
 #codee = CodeePy('<Your port number>')
 
 # say text
-# codee..say("Hello")
+# codee.say("Hello")
 
 # set melody tempo
 # codee.set_melody_tempo(2)
@@ -86,11 +88,11 @@ CodeePy.get_com_ports()
 # codee.display_image("tick")
 
 # Text scroll
-# codee.led_scroll_text("abcde")
+# codee.display_scroll_text("abcde")
 # Allow time for text to scroll
 # time.sleep(3)
 # Stop Text Scroll
-# codee.stop_led_scroll_text()
+# codee.display_stop_scroll_text()
 
 # Display number
 # codee.display_number(85)
@@ -99,7 +101,7 @@ CodeePy.get_com_ports()
 # codee.display_clear()
 
 # Set LED display pixel state
-# codee.set_led_display_pixel(0, 0, True)
+# codee.display_set_pixel(0, 0, True)
 
 # Changebluetooth name
 # codee.change_bot_bluetooth_name("Grumpee")
@@ -122,6 +124,10 @@ CodeePy.get_com_ports()
 # Set both wheel speeds
 # codee.set_wheel_velocities(10,10)
 # time.sleep(1)
+
+# Read both AUX inputs 
+#print(codee.read_aux_input(1))
+#print(codee.read_aux_input(2))
 
 # Reset Codee to default
 # codee.reset_codee_body_and_exit()

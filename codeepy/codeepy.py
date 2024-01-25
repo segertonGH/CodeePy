@@ -22,7 +22,7 @@ LICENSE:
 
 NOTES
 ===============
-Version: 1.0.4
+Version: 2.0.0
 
 
 QUICK TUTORIAL:
@@ -84,11 +84,11 @@ codee.exit()
 codee.display_image("tick")
 
 # Text scroll
-codee.led_scroll_text("abcde")
+codee.display_scroll_text("abcde")
 # Allow time for text to scroll
 # time.sleep(3)
 # Stop Text Scroll
-codee.stop_led_scroll_text()
+codee.display_stop_scroll_text()
 
 # Display number
 codee.display_number(85)
@@ -97,7 +97,7 @@ codee.display_number(85)
 codee.display_clear()
 
 # Set LED display pixel
-codee.set_led_display_pixel(0, 0, True)
+codee.display_set_pixel(0, 0, True)
 
 # Changebluetooth name
 codee.change_bot_bluetooth_name("happybot")
@@ -138,6 +138,8 @@ import pyfirmata2
 import serial
 import serial.tools.list_ports
 from pyfirmata2 import util
+from threading import Lock
+from textwrap import wrap
 
 
 class CodeePy:
@@ -163,8 +165,6 @@ class CodeePy:
         self.line_sensor_3 = self.codee.get_pin('a:4:i')
         self.line_sensor_4 = self.codee.get_pin('a:5:i')
         self.line_sensor_5 = self.codee.get_pin('a:6:i')
-        #initialise US variable
-        self.us_reading = 0
         # initialise AUX variables 
         self.aux_1_reading, self.aux_2_reading = 0, 0
         # initilaise line state variables
@@ -180,8 +180,13 @@ class CodeePy:
         self.aux_2.register_callback(self.aux_2_callback)
         # default sampling interval of 19ms
         self.codee.samplingOn()
+        # command callback data buffer
+        self.command_response_data = []
+        # command mutex
+        self.command_mutex = Lock()
+        self.command_response_mutex = Lock()
         # instantiate handler for commands
-        self.codee.add_cmd_handler(pyfirmata2.STRING_DATA, self._messagehandler_ultrasound)
+        self.codee.add_cmd_handler(pyfirmata2.STRING_DATA, self._messagehandler_command_callback)
         # note dictionary for user melodies amd tones
         self.notedictionary = {"RST": 0,
                                "C1": 33, "CS1": 35, "D1": 37, "DS1": 39, "E1": 41, "F1": 44, "FS1": 46, "G1": 49,
@@ -229,13 +234,16 @@ class CodeePy:
         self.aux_2_reading = data
 
     # command message handler
-    def _messagehandler_ultrasound(self, *args, **kwargs):
-        self.us_reading = 0
+    def _messagehandler_command_callback(self, *args, **kwargs):
+        # process command response data
+        self.command_response_data = []
         for digit in args:
-            #print("Digit 0x{:02x}".format(digit))
-            if (digit == 0x0D): break;
-            self.us_reading = (self.us_reading * 10) + (digit - 0x30)
-
+            self.command_response_data.append(digit)
+        # release command response mutext lock, informing caller data has been received
+        try:
+            self.command_response_mutex.release();
+        except: RuntimeError
+        
     # Public Functions
 
     def check_codee_firmware(self):
@@ -252,10 +260,12 @@ class CodeePy:
 
     check_codee_firmware.__doc__ = "Check Firmata version is 2.5"
 
+    
+
     def say(self, text):
         """
         This method makes Codee "Speak"
-        @param text: a string with less than 30 characters that Codee will day
+        @param text: a test string that Codee will say
         @return: True if Codee "Spoke", else False
         """
         text = text.strip()
@@ -448,7 +458,7 @@ class CodeePy:
 
     def display_image(self, image):
         """
-        This method will make Codee LED matrix display a preset image
+        This method will make Codees LED display a preset image
         @param image: string value of preset image
         """
         global imagetodisp
@@ -483,9 +493,9 @@ class CodeePy:
                        "quaverx2 \n" \
                        "blank"
 
-    def led_scroll_text(self, text):
+    def display_scroll_text(self, text):
         """
-        This method will make Codees LED matrix scroll given text
+        This method will make Codees LED display scroll given text
         @param text: text to scroll as string
         """
         if len(text) < 30:
@@ -496,27 +506,27 @@ class CodeePy:
         else:
             print("Please enter text less than 30 characters in length")
 
-    led_scroll_text.__doc__ = "Scroll text x on Codee head display"
+    display_scroll_text.__doc__ = "Scroll text x on Codee head display"
 
-    def stop_led_scroll_text(self):
+    def display_stop_scroll_text(self):
         """
         This method will stop scrolling text and revert to state prior to scrolling
         """
         scroll_list = [0x02, False]
         self.codee.send_sysex(0x0A, scroll_list)
 
-    stop_led_scroll_text.__doc__ = "Stop scroll text on Codee head display"
+    display_stop_scroll_text.__doc__ = "Stop scroll text on Codee head display"
 
     def display_character(self, character):
         """
-        This method will make Codees LED matrix display a character
+        This method will make Codees LED display display a character
         @param character : character to display as single character
         """
         self.codee.send_sysex(0x0A, [0x07, ord(character[0])])
 
     def display_number(self, number):
         """
-        This method will make Codees LED matrix display a number
+        This method will make Codees LED display display a number
         @param number : number to display as int between 0 and 99 inclusive
         """
         if number >= 0 and number <= 99:
@@ -528,15 +538,15 @@ class CodeePy:
 
     def display_clear(self):
         """
-        This method will clear Codees LED matrix turning off all LED's
+        This method will clear Codees LED display turning off all LED's
         """
         self.codee.send_sysex(0x0A, [0x06])
 
     display_clear.__doc__ = "Clear Codee head display"
 
-    def set_led_display_pixel(self, row, column, state):
+    def display_set_pixel(self, row, column, state):
         """
-        This method will set the state of a single LED in  Codees LED matrix
+        This method will set the state of a single LED in  Codees LED display
         @param row: row of pixel between 0 and 7 inclusive as int
         @param column: column of pixel between 0 and 7 inclusive as int
         @param state: set Pixel state True/False
@@ -546,7 +556,7 @@ class CodeePy:
         else:
             print("Please enter a row and column values between 0 and 7")
 
-    set_led_display_pixel.__doc__ = "Set individual pixel state (True/False)"
+    display_set_pixel.__doc__ = "Set individual pixel state (True/False)"
 
     def set_left_wheel_velocity(self, speed):
         """
@@ -688,7 +698,7 @@ class CodeePy:
 
     read_line_sensors_position_and_state.__doc__ = "returns an array of all the sensor values that detect a black line, 1 is true 0 is false"
 
-    def set_led_display_rows(self, hex_display_row_data):
+    def display_set_rows(self, hex_display_row_data):
         """
         This method will set the display rows
         @param hex: input rows as a 64 bit hex number i.e. 0x1122334455667788 where each two digit hex number is row, top to bottom
@@ -699,7 +709,7 @@ class CodeePy:
         else:
             print("Please enter 16 hex digits")
 
-    set_led_display_rows.__doc__ = "Set active display rows"
+    display_set_rows.__doc__ = "Set active display rows"
     
     def connect_reset_and_hello(self):
         """
@@ -738,15 +748,50 @@ class CodeePy:
         This method will read Codees ultrasound sensor and return the result from 2 to 60 cm
         A result of 0 indicates no object detected
         """
-        data = []
-        # start ultrasound
-        self.codee.send_sysex(0x08, data)
-        # allow enough time for callback to finish
-        time.sleep(0.1) 
-        return self.us_reading
-
+        
+        return self.__firmata_command(0x08, [])
+        
     read_ultrasound_distance_cm.__doc__ = "Returns ultrasound distance sensor reading in cm"
+    
+    def read_battery_voltage(self):
+        """
+        This method will read Codees board voltage and return the result in volts to 1 decimal place.
+        """
+        
+        return self.__firmata_command(0x07, [0x00]) / 10
+        
+    read_battery_voltage.__doc__ = "Returns board volatge in volts"
+    
+    def is_playing_melody(self):
+        if (self.__firmata_command(0x07, [0x01]) == 1):
+            return(True)
+        return(False)
 
+    is_playing_melody.__doc__ = "Returns true if codee is playing a melody, false otherwise"
+
+
+    def is_scrolling_text(self):
+        if (self.__firmata_command(0x07, [0x02]) == 1):
+            return(True)
+        return(False)
+
+    is_scrolling_text.__doc__ = "Returns true if codee is scrolling text, false otherwise"
+    
+    def is_saying_text(self):
+        if (self.__firmata_command(0x07, [0x03]) == 1):
+            return(True)
+        return(False)
+
+    is_scrolling_text.__doc__ = "Returns true if codee is saying text, false otherwise"
+    
+    def is_moving(self):
+        # maps to has_stopped, return is inverted
+        if (self.__firmata_command(0x07, [0x04]) == 0): 
+            return(True)
+        return(False)
+
+    is_moving.__doc__ = "Returns true if codee's wheels are moving, false otherwise"
+ 
     # Helper Functions
 
     @staticmethod
@@ -780,3 +825,30 @@ class CodeePy:
             'disabled': (0, 1)  # Rx, Tx, Crystal
         }
         self.codee.setup_layout(nano)
+    
+    def __firmata_command(self, command, data):
+        """
+        This method will issue a firmata command to codee and return the recrived value back to the calling method.
+        """
+        value = 0
+        # aquire command mutex lock
+        self.command_mutex.acquire()
+        # aquire command response mutex lock, step 1
+        self.command_response_mutex.acquire()
+        # start ultrasound
+        self.codee.send_sysex(command, data)
+        # aquire command response mutex lock, step 2
+        self.command_response_mutex.acquire()
+        # decode response data
+        for digit in self.command_response_data:
+            #print("Digit 0x{:02x}".format(digit))
+            if (digit == 0x0D): break;
+            # update return value
+            value = (value * 10) + (digit - 0x30)
+        # release command response mutext lock
+        self.command_response_mutex.release();
+        # release command mutext lock
+        self.command_mutex.release();
+        return value
+    
+    __firmata_command.__doc__ = "This method will issue a firmata command to the connected board"

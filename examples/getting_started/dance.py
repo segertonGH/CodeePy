@@ -52,7 +52,7 @@ for x in range(5): #Do every thing in this loop 5 times
     time.sleep(1) #wait 1 second (while still doing all the above)
 
 #Set scrolling display
-codee.led_scroll_text("DANCE") #Start text scroll on LED display matrix
+codee.display_scroll_text("DANCE") #Start text scroll on LED display matrix
 
 #Start the music
 codee.play_melody("chariots") #Start playing the music
