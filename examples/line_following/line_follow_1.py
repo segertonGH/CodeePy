@@ -22,10 +22,10 @@ LICENSE:
     
     This example demostrates a basic line following algrothim, based on a 
     Braitenberg statemachine.  This example assumes a black line on a white background. Ideally 
-    the line should be about 15mm wide, or roughly the half the distance between two sensors.  
+    the line should be about 15mm wide, or roughly half the distance between two sensors.  
     Codee uses the readline() function to update the lineState class variable.  
-    lineState is an integer value between 0 and 10 with the following meaning when 5 line sensors 
-    are installed.
+    lineState is an integer value between 0 and 10.  Each lineState integer value has the following m
+    eaning when 5 line sensors are installed and used.
 
      0 Codee the the very, very, very, left of line
      1 Codee the the very, very, left of line

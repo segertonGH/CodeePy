@@ -694,7 +694,7 @@ class CodeePy:
                 return (position / online) - centre, int(2 * (((position / online) - centre) + 2))
         else:
             print("no of sensors must be 3 or 5")
-            return 0
+            return -1, -1
 
     read_line_sensors_position_and_state.__doc__ = "returns an array of all the sensor values that detect a black line, 1 is true 0 is false"
 
